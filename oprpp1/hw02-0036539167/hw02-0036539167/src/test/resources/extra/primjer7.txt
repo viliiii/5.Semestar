@@ -1,0 +1,4 @@
+Ovo je isto OK {$ = "String ide
+u \"više\"
+redaka
+ovdje a stvarno četiri" $}

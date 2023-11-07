@@ -1,0 +1,2 @@
+Tara Baće 0036538042
+S kolegicom sam raspravio kako bi logički preskakali backslasheove prilikom escapeanja znakova i općenito o escapeanju. Također konceptualno o nekim dijelovima Lexera za Parser i samog Parsera.
