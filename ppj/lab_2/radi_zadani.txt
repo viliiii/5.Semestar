@@ -1,0 +1,272 @@
+retci = []
+while True:
+    try:
+        line = input()
+    except EOFError:
+        break
+    retci.append(line)
+
+print(retci)
+#retci = ['IDN 1 a', 'OP_PRIDRUZI 1 =', 'BROJ 1 0']
+ind = 0
+
+
+tree = []
+space_num = 0
+
+
+def program():
+    global space_num
+    tree.append(" " * space_num + "<program>")
+    space_num += 1
+    global ind
+    if ind >= len(retci):
+        lista_naredbi()
+        return
+    if ind >= len(retci) or retci[ind][:3] == "IDN" or retci[ind][:5] == "KR_ZA":
+        lista_naredbi()
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+def lista_naredbi():
+    global space_num
+    tree.append(" " * space_num + "<lista_naredbi>")
+    space_num += 1
+    global ind
+    if ind >= len(retci):
+        tree.append(" " * space_num + "$")
+        space_num -= 2
+        return
+
+    if ind >= len(retci) or retci[ind][:5] == "KR_AZ":
+        tree.append(" " * space_num + "$")
+        space_num -= 2
+    elif retci[ind][:3] == "IDN" or retci[ind][:5] == "KR_ZA":
+        naredba()
+        lista_naredbi()
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+def naredba():
+    global space_num
+    tree.append(" " * space_num + "<naredba>")
+    space_num += 1
+    global ind
+    if retci[ind][:3] == "IDN":
+        naredba_pridruzivanja()
+    elif retci[ind][:5] == "KR_ZA":
+        za_petlja()
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+def naredba_pridruzivanja():
+    global space_num
+    tree.append(" " * space_num + "<naredba_pridruzivanja>")
+    space_num += 1
+    global ind
+    if retci[ind][:3] == "IDN":
+        tree.append(" " * space_num + retci[ind])
+        ind += 1
+        if retci[ind][:5] == "OP_PR":
+            tree.append(" " * space_num + retci[ind])
+            ind += 1
+            e()
+        else:
+            tree.append(f"error {retci[ind]}")
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+def za_petlja():
+    global space_num
+    tree.append(" " * space_num + "<za_petlja>")
+    space_num += 1
+    global ind
+    if retci[ind][:5] == "KR_ZA":
+        tree.append(" " * space_num + retci[ind])
+        ind += 1
+        if retci[ind][:3] == "IDN":
+            tree.append(" " * space_num + retci[ind])
+            ind += 1
+            if retci[ind][:5] == "KR_OD":
+                tree.append(" " * space_num + retci[ind])
+                ind += 1
+                e()
+                if retci[ind][:5] == "KR_DO":
+                    tree.append(" " * space_num + retci[ind])
+                    ind += 1
+                    e()
+                    lista_naredbi()
+                    if retci[ind][:5] == "KR_AZ":
+                        tree.append(" " * space_num + retci[ind])
+                        space_num -= 2
+                        ind += 1
+                    else:
+                        tree.append(f"error {retci[ind]}")
+
+                else:
+                    tree.append(f"error {retci[ind]}")
+
+            else:
+                tree.append(f"error {retci[ind]}")
+
+        else:
+            tree.append(f"error {retci[ind]}")
+
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+def e():
+    global space_num
+    tree.append(" " * space_num + "<E>")
+    space_num += 1
+    global ind
+    if (retci[ind][:3] == "IDN" or retci[ind][:4] == "BROJ" or
+            retci[ind][:7] == "OP_PLUS" or retci[ind][:8] == "OP_MINUS" or
+            retci[ind][:9] == "L_ZAGRADA"):
+        t()
+        e_lista()
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+def e_lista():
+    global space_num
+    tree.append(" " * space_num + "<E_lista>")
+    space_num += 1
+    global ind
+    if ind >= len(retci):
+        tree.append(" " * space_num + "$")
+        return
+
+    if (ind >= len(retci) or retci[ind][:3] == "IDN" or retci[ind][:5] == "KR_ZA"
+            or retci[ind][:5] == "KR_DO" or retci[ind][:5] == "KR_AZ" or retci[ind][:9] == "D_ZAGRADA"):
+        tree.append(" " * space_num + "$")
+
+        if retci[ind][:3] == "IDN" or retci[ind][:5] == "KR_ZA":
+            space_num -= 4
+        elif retci[ind][:5] == "KR_AZ":
+            space_num -= 8
+        else:
+            space_num -= 2
+
+    elif retci[ind][:8] == "OP_MINUS":
+        tree.append(" " * space_num + retci[ind])
+        ind += 1
+        e()
+    elif retci[ind][:7] == "OP_PLUS":
+        tree.append(" " * space_num + retci[ind])
+        ind += 1
+        e()
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+def t():
+    global space_num
+    tree.append(" " * space_num + "<T>")
+    space_num += 1
+    global ind
+    if (retci[ind][:3] == "IDN" or retci[ind][:4] == "BROJ" or
+            retci[ind][:7] == "OP_PLUS" or retci[ind][:8] == "OP_MINUS" or
+            retci[ind][:9] == "L_ZAGRADA"):
+        p()
+        t_lista()
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+def t_lista():
+    global space_num
+    tree.append(" " * space_num + "<T_lista>")
+    space_num += 1
+    global ind
+
+    if ind >= len(retci):
+        tree.append(" " * space_num + "$")
+        return
+
+    if (ind >= len(retci) or retci[ind][:3] == "IDN" or retci[ind][:5] == "KR_ZA"
+            or retci[ind][:5] == "KR_DO" or retci[ind][:5] == "KR_AZ" or retci[ind][:9] == "D_ZAGRADA"
+            or retci[ind][:7] == "OP_PLUS" or retci[ind][:8] == "OP_MINUS"):
+        tree.append(" " * space_num + "$")
+
+        if ind + 1 < len(retci):
+            if (retci[ind][:7] == "OP_PLUS" and retci[ind + 1][:3] == "IDN") or retci[ind][:5] == "KR_AZ":
+                space_num -= 4
+            else:
+                space_num -= 2
+        else:
+            if retci[ind][:5] == "KR_AZ":
+                space_num -= 4
+
+        # if retci[ind][:5] == "KR_AZ":
+        #     space_num -= 4
+        # elif retci[ind][:7] == "OP_PLUS":
+        #     if ind + 1 < len(retci):
+        #         if retci[ind + 1][:3] == "IDN":
+        #             space_num -= 4
+        # else:
+        #     space_num -= 2
+
+        # if (retci[ind][:7] == "OP_PLUS" and retci[ind + 1][:3] == "IDN") or retci[ind][:5] == "KR_AZ":
+        #     space_num -= 4
+        # else:
+        #     space_num -= 2
+
+
+    elif retci[ind][:9] == "OP_DIJELI":
+        tree.append(" " * space_num + retci[ind])
+        ind += 1
+        t()
+    elif retci[ind][:7] == "OP_PUTA":
+        tree.append(" " * space_num + retci[ind])
+        ind += 1
+        t()
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+def p():
+    global space_num
+    tree.append(" " * space_num + "<P>")
+    space_num += 1
+    global ind
+    if retci[ind][:3] == "IDN":
+        tree.append(" " * space_num + retci[ind])
+        space_num -= 1
+        ind += 1
+    elif retci[ind][:4] == "BROJ":
+        tree.append(" " * space_num + retci[ind])
+        space_num -= 1
+        ind += 1
+    elif retci[ind][:4] == "OP_P":
+        tree.append(" " * space_num + retci[ind])
+        ind += 1
+        p()
+    elif retci[ind][:4] == "OP_M":
+        tree.append(" " * space_num + retci[ind])
+        ind += 1
+        p()
+    elif retci[ind][:5] == "L_ZAG":
+        tree.append(" " * space_num + retci[ind])
+        ind += 1
+        e()
+        if retci[ind][:5] == "D_ZAG":
+            tree.append(" " * space_num + retci[ind])
+            space_num -= 1
+            ind += 1
+        else:
+            tree.append(f"error {retci[ind]}")
+    else:
+        tree.append(f"error {retci[ind]}")
+
+
+program()
+
+for i in range(0, len(tree)):
+    print(tree[i])

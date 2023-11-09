@@ -1,7 +1,7 @@
 {
 	"defaults": {
-		"test folder": "C:/5. semestar/ppj/lab_1/lab1_laksa",
-		"program": "C:/Users/vilim/PycharmProjects/pythonProject/LeksickiAnalizator.py",
+		"test folder": "C:/5. semestar/ppj/lab_2/lab2_laksa",
+		"program": "C:/Users/vilim/PycharmProjects/pythonProject/SintaksniAnalizator.py",
 		"lang": ".py",
 		"extensions": {
 			"input": ".in",
