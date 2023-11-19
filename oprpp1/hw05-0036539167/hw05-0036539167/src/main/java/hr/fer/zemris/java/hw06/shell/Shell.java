@@ -27,6 +27,9 @@ public class Shell implements Environment{
         commands.put("copy", new CopyShellCommand());
         commands.put("mkdir", new MkdirShellCommand());
         commands.put("hexdump", new HexdumpShellCommand());
+        commands.put("symbol", new SymbolShellCommand());
+        commands.put("exit", new ExitShellCommand());
+        commands.put("help", new HelpShellCommand());
     }
 
     public Shell(){
@@ -42,7 +45,8 @@ public class Shell implements Environment{
 
     /**
      * Returns the String representation of what
-     * the user has entered into the shell environment.
+     * the user has entered into the shell environment
+     * as a single line string without MORELINES characters
      *
      * @return the String representation of what the user has entered into the shell environment
      * @throws ShellIOException if the input is invalid
@@ -50,8 +54,26 @@ public class Shell implements Environment{
     @Override
     public String readLine() throws ShellIOException {
 
+        StringBuilder sbInput = new StringBuilder();
+        String line = "";
+        while (true) {
 
-        return scanner.nextLine();
+            line = scanner.nextLine();
+            if(Objects.equals(line, "")){
+                //throw new ShellIOException("Missing MORELINES symbol.");
+                //System.out.println("Invalid command line.");
+                break;
+            }
+            if(!line.endsWith(String.valueOf(MORELINES))) {
+                sbInput.append(" ").append(line.trim());
+                break;
+            }else {
+                sbInput.append(" ").append(line, 0, line.length()-1);
+                System.out.print(MULTILINE+ " ");
+            }
+        }
+
+        return sbInput.toString().trim();
     }
 
     /**

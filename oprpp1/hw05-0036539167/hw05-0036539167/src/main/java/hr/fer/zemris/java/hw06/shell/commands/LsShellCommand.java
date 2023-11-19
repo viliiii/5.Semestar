@@ -24,6 +24,8 @@ public class LsShellCommand implements ShellCommand {
     @Override
     public ShellStatus executeCommand(Environment env, String arguments) {
         Path path;
+        arguments = arguments.trim();
+        arguments = arguments.replaceAll("\"", "");
         try {
             path = Paths.get(arguments);
         }catch (Exception e){
@@ -89,7 +91,6 @@ public class LsShellCommand implements ShellCommand {
         cmdDescription.add("Second column contains object size in bytes that is right aligned and" +
                 "occupies 10 characters.");
         cmdDescription.add("Follows file creation date/time and finally file name.");
-        cmdDescription = (ArrayList<String>) Collections.unmodifiableList(cmdDescription);
-        return cmdDescription;
+        return Collections.unmodifiableList(cmdDescription);
     }
 }

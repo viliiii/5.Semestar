@@ -1,0 +1,4 @@
+Tara Baće, 0036538042
+
+S kolegicom sam raspravio o hvatanju greški i kako će shell na to reagirati, 
+što ispisati po tom pitanju. Također neke detalje o parsiranju putanji.

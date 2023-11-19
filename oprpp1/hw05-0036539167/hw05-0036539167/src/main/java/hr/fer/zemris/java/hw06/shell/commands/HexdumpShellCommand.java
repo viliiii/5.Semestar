@@ -18,6 +18,7 @@ public class HexdumpShellCommand implements ShellCommand {
     @Override
     public ShellStatus executeCommand(Environment env, String arguments) {
         Path path;
+        arguments = arguments.trim();
         arguments = arguments.replaceAll("\"", "");
         try {
             path = Paths.get(arguments);
@@ -103,9 +104,8 @@ public class HexdumpShellCommand implements ShellCommand {
     @Override
     public List<String> getCommandDescription() {
         ArrayList<String> cmdDescription = new ArrayList<String>();
-        cmdDescription.add("Finally, the hexdump command expects a single argument: ");
+        cmdDescription.add("The hexdump command expects a single argument: ");
         cmdDescription.add("file name, and produces hex-output .");
-        cmdDescription = (ArrayList<String>) Collections.unmodifiableList(cmdDescription);
-        return cmdDescription;
+        return Collections.unmodifiableList(cmdDescription);
     }
 }

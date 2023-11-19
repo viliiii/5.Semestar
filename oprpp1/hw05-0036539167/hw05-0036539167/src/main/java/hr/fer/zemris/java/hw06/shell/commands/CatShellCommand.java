@@ -18,7 +18,7 @@ import java.util.List;
 public class CatShellCommand implements ShellCommand {
     @Override
     public ShellStatus executeCommand(Environment env, String arguments) {
-        String[] split = arguments.split(" ");
+        String[] split = arguments.trim().split(" ");
         if(split.length <1) {
             env.writeln("No path specified.");
             return ShellStatus.CONTINUE;
@@ -26,7 +26,7 @@ public class CatShellCommand implements ShellCommand {
         //---
         String strFrom = "";
         boolean inside = false;
-        char[] arr = arguments.toCharArray();
+        char[] arr = arguments.trim().toCharArray();
         int i=0;
         //from
         for(; i<arr.length; i++) {
@@ -100,7 +100,6 @@ public class CatShellCommand implements ShellCommand {
         cmdDescription.add("This command opens given file and writes its content to console.");
         cmdDescription.add("The first argument is path to some file and is mandatory");
         cmdDescription.add("The second argument ischarset name that should be used to interpret chars from bytes.");
-        cmdDescription = (ArrayList<String>) Collections.unmodifiableList(cmdDescription);
-        return cmdDescription;
+        return Collections.unmodifiableList(cmdDescription);
     }
 }

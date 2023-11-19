@@ -1,6 +1,9 @@
 package hr.fer.zemris.java.hw06.shell;
 
 public class MyShell {
+/*
+    java -cp target\classes src/main/java/hr/fer/zemris/java/hw06/shell/MyShell.java
+*/
 
     public static String extractCommand(String line){
 
@@ -14,7 +17,8 @@ public class MyShell {
      */
     public static String extractArgs(String line){
         StringBuilder sb = new StringBuilder();
-        String[] split = line.split(" ");
+
+        String[] split = line.trim().split(" ");
         for(int i=1; i<split.length; i++){
             if(i == split.length - 1){
                 sb.append(split[i]);
@@ -31,17 +35,19 @@ public class MyShell {
 
         shell.writeln("Welcome to MyShell v 1.0");
         String line;
-        ShellStatus status;
+        ShellStatus status = ShellStatus.CONTINUE;
         do{
             System.out.print(shell.getPromptSymbol() + " ");
             line = shell.readLine();
             String commandName = extractCommand(line);
             String arguments = extractArgs(line);
+
             ShellCommand command = shell.commands().get(commandName);
-            status = command.executeCommand(shell, arguments);
-
+            if(command == null){
+                shell.writeln("No command named: " + commandName);
+            }else {
+                status = command.executeCommand(shell, arguments);
+            }
         }while (status != ShellStatus.TERMINATE);
-
-
     }
 }

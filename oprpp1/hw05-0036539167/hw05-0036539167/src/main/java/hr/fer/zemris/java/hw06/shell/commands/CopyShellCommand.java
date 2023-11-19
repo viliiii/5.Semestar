@@ -29,7 +29,7 @@ public class CopyShellCommand implements ShellCommand {
             strTo = split[1];
         }else{
             boolean inside = false;
-            char[] arr = arguments.toCharArray();
+            char[] arr = arguments.trim().toCharArray();
             int i=0;
             //from
             for(; i<arr.length; i++) {
@@ -75,8 +75,8 @@ public class CopyShellCommand implements ShellCommand {
             to = Paths.get(to.toString() + "\\" + from.getFileName());
         }
         if(Files.exists(to)){
-            env.writeln("File with path" + to.toString() +
-                    "exists. Overwrite it? Y/N" );
+            env.writeln("File with path " + to.toString() +
+                    " exists. Overwrite it? Y/N" );
             if(Objects.equals(env.readLine(), "N")){
                 return ShellStatus.CONTINUE;
             }
@@ -115,7 +115,6 @@ public class CopyShellCommand implements ShellCommand {
         cmdDescription.add("source file name and destination file name (i.e. paths and" +"names).");
         cmdDescription.add("Id the destination file exists, user will be" +
                 "asked for overwriting it.");
-        cmdDescription = (ArrayList<String>) Collections.unmodifiableList(cmdDescription);
-        return cmdDescription;
+        return Collections.unmodifiableList(cmdDescription);
     }
 }

@@ -25,8 +25,7 @@ public class TreeShellCommand implements ShellCommand {
     }
     @Override
     public ShellStatus executeCommand(Environment env, String arguments) {
-
-
+        arguments = arguments.trim();
         arguments = arguments.replaceAll("\"", "");
         Path path;
         try {
@@ -35,7 +34,7 @@ public class TreeShellCommand implements ShellCommand {
             env.writeln("Error: " + arguments);
             return ShellStatus.CONTINUE;
         }
-        if(!Files.isDirectory(path)){
+        if(!Files.isDirectory(path) || arguments.isEmpty()){
             env.writeln("Path is not a directory.");
             return ShellStatus.CONTINUE;
         }
@@ -57,7 +56,6 @@ public class TreeShellCommand implements ShellCommand {
         ArrayList<String> cmdDescription = new ArrayList<String>();
         cmdDescription.add("The tree command expects a single argument: directory name ");
         cmdDescription.add(" and prints a tree (each directory level shifts" + "output two charatcers to the right).");
-        cmdDescription = (ArrayList<String>) Collections.unmodifiableList(cmdDescription);
-        return cmdDescription;
+        return Collections.unmodifiableList(cmdDescription);
     }
 }
