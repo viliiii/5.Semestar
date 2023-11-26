@@ -1,0 +1,138 @@
+************************************************
+Proširenje za switch
+************************************************
+
+https://openjdk.java.net/jeps/361
+
+Dvije različite sintakse unutar tijela:
+"case X: " vs "case X -> "
+gdje dvotočka ima "fall-through" semantiku i ne dopušta nizanje vrijednosti zarezom, a "->" nema "fall-through" semantiku i dopušta nizanje vrijednosti zarezom.
+
+Switch naredba i switch izraz.
+
+String val = someMethod();
+int n = switch(val) {
+  case "ABBA", "ACDC" -> 1;
+  case "U2" -> 2;
+  default -> throw new RuntimeException();
+};
+
+Switch-izraz mora biti iscrpan; switch-naredba ne mora.
+
+************************************************
+Proširenje sintakse instanceof
+************************************************
+
+https://openjdk.java.net/jeps/394
+
+Umjesto:
+
+if(o instanceof String) {
+  String s = (String)o;
+  System.out.println(s.length());
+}
+
+možemo pisati:
+
+if(o instanceof String s) {
+  System.out.println(s.length());
+}
+
+čime izbjegavamo pisanje koda koji radi ukalupljivanje. Štoviše, varijablu možemo koristiti odmah u nastavku ispitivanja:
+
+if(o instanceof String s && !s.isEmpty()) {
+  System.out.println(s.length());
+}
+
+dok bi prije toga kod bio poprilično ružan:
+
+if(o instanceof String && !((String)o).isEmpty()) {
+  String s = (String)o;
+  System.out.println(s.length());
+}
+
+
+
+************************************************
+Zatvorena stabla naslijeđivanja
+************************************************
+
+https://openjdk.java.net/jeps/409
+
+Od Jave 17 u jezik je uvedena funkcionalnost zatvaranja stabala naslijeđivanja koja je testirana kroz ranije inačice jezika, tzv. "sealed classes".
+
+Ovime se omogućava programeru da definira potpun popis razreda koji mogu naslijediti ili implementirati neko sučelje. 
+Posljedica toga je da prevoditelj tijekom prevođenja zna tu informaciju, pa primjerice switch-izraz koji radi razvrstavanje po tipovima ne treba "default" granu.
+
+Primjer:
+
+sealed interface Shape
+    permits Circle, Rectangle { ... }
+
+Djeca zatvorenog razreda moraju ponovno biti sealed, non-sealed ili final.
+
+Ako je neko dijete "sealed", ono dalje grana svoju djecu i produbljuje stablo naslijeđivanja na kontrolirani način.
+Ako je neko dijete "non-sealed", ono omogućava proizvoljan broj djece ispod njega.
+Ako je neko dijete "final", ono je list stabla naslijeđivanja.
+
+************************************************
+Zapisi (engl. records)
+************************************************
+
+https://openjdk.java.net/jeps/395
+
+Od Jave 16 uveden je novi način definiranja nepromjenjivih objekata skraćenom sintaksom, koji je testiran u ranijim inačicama jezika. Uvedena je ključna riječ record.
+
+Zapisi su zaključani za naslijeđivanje - listovi su u stablu naslijeđivanja.
+
+Primjerice:
+
+record Point(int x, int y) {}
+
+treba tretirati ekvivalentno kao deklaraciju razreda Point koji ima 
+ * privatne konstante članske varijable x i y,
+ * konstruktor koji ih prima i upisuje u članske varijable, 
+ * gettere (ali identičnog imena, ne getXXX()),
+ * metode equals, hashCode i toString s primjerenim implementacijama
+   (npr. equals uspoređuje članske varijable, a ako je članska varijabla referenca, ponaša se kao da za usporedbu poziva Objects.equals(...,...).
+
+Ako se za zapis ne definira konstruktor, on automatski dobiva kanonski konstruktor (onaj koji prima vrijednosti za članske varijable redoslijedom kojim su navedene u deklaraciji zapisa).
+
+Kanonski konstruktor može se definirati i eksplicitno (ali redoslijed parametara mora odgovarati redoslijedu kojim su članske varijable navedene u deklaraciji zapisa).
+
+Kako bi se omogućila validacija argumenata, ali bez pisanja koda koji radi dodjeljivanje, dozvoljava se pisanje kompaktnog kanonskog konstruktora: navodi se samo ime pa otvorena vitičasta zagrada (preskače se lista argumenata); u tijelo se tada stavlja samo kod koji radi provjere, a programski kod za inicijalizaciju članskih varijabli kompajler će automatski dodati na kraj konstruktora.
+
+record Student(String firstName, String lastName, String jmbag) {
+  public Student {
+    Objects.requireNonNull(jmbag);
+  }
+}
+
+Evo dva primjera iz same specifikacije:
+
+record Range(int lo, int hi) {
+    Range {
+        if (lo > hi)  // referring here to the implicit constructor parameters
+            throw new IllegalArgumentException(String.format("(%d,%d)", lo, hi));
+    }
+}
+
+record Rational(int num, int denom) {
+    Rational {
+        int gcd = gcd(num, denom);
+        num /= gcd;
+        denom /= gcd;
+    }
+}
+
+Neka pravila vezana uz zapise:
+ * ne mogu naslijediti nikoga (ali mogu implementirati sučelje)
+ * nadređeni razred je uvijek java.lang.Record (slično kao što je za svaki enum nadređeni razred java.lang.Enum).
+ * eksplicitno su final (shodno tome, ne mogu biti abstract)
+ * članske varijable su final
+ * programer ne može deklarirati članske varijable niti inicijalizacijske blokove objekta
+ * ako programer eksplicitno deklarira metode koje bi inače bile generirane automatski, mora poštivati njihov prototip i semantiku
+ * ne može imati nativne metode
+ * ako je zapis deklariran ugniježđen ili lokalan, onda je implicitno statički (pa ne hvata referencu na primjerak vanjskog razreda)
+
+

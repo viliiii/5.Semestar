@@ -1,0 +1,35 @@
+Službena dokumentacija:
+
+https://junit.org/junit5/docs/current/user-guide/
+
+-------------------------------------------------------------------------
+
+Zgodan kratak tutorial:
+
+https://howtodoinjava.com/junit5/junit5-maven-dependency/
+
+-------------------------------------------------------------------------
+
+Kako koristiti u vlastitim maven projektima?
+
+U projekt deklarirati varijablu koja čuva verziju junita:
+
+    <properties>
+        <junit.jupiter.version>5.7.0</junit.jupiter.version>
+    </properties>
+    
+pa u projekt dodati ovisnost:
+
+<dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>${junit.jupiter.version}</version>
+    <scope>test</scope>
+</dependency>
+
+Iz mavena se tada testovi pokreću s:
+
+mvn test
+
+Iste je moguće pokrenuti i iz Eclipse kroz GUI.
+

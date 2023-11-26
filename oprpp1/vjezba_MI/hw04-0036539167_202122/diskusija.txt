@@ -1,0 +1,4 @@
+Tara Baće, 0036538042
+
+S kolegicom raspravio o formatiranju ispisa, odnosno kako dobiti broj znakova
+"=" koji su uključeni u ispis i neke detalje vezane uz način biranja operatora u QueryParser.

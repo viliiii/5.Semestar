@@ -1,0 +1,68 @@
+// Idejno: omotač Double
+// ---------------------
+class Double {
+  private double value;
+
+  public Double(double value) { this.value = value; }
+
+  public double doubleValue() { return this.value; }
+
+}
+
+// Idejno: omotač OptionalDouble
+// -----------------------------
+class OptionalDouble {
+  // Pamti dva podatka: vrijednost te ima li je uopće
+  private double value;
+  private boolean hasValue;
+
+  // Dva privatna konstruktora: s vrijednosti i bez
+  private OptionalDouble(double value) { 
+    this.value = value; this.hasValue = true;}
+
+  private Double() { this.hasValue = false; }
+
+  // Metode za provjeru ima li upisane vrijednosti te dohvat.
+  public boolean isPresent() { return hasValue; }
+  public double getAsDouble() {
+   if(!isPresent()) throw NoSuchElementException();
+   return value;
+  }
+
+  // Javna metoda za stvaranje praznog omotača - implementacijski može biti keširana tako da vraća uvijek isti prazan objekt
+  public static OptionalDouble empty() { return new OptionalDouble();}
+
+  // Javna metoda za stvaranje popunjenog omotača
+  public static OptionalDouble of(double value) {
+    return new OptionalDouble(value);
+  }
+}
+
+Općenitije rješenje koje radi s proizvoljnim objektima je parametrizirani razred Optional<T>. Skica razreda:
+
+public class Optional<T> {
+  private T value;
+  private boolean hasValue;
+  
+  private static final Optional<?> EMPTY = new Optional<>(null, false);
+  
+  private Optional(T value, boolean hasValue) { this.value = value; this.hasValue = hasValue; }
+  
+  public boolean isPresent() { return hasValue; }
+  public boolean isEmpty() { return !hasValue; }
+
+  public static <T> Optional<T> of(T value) { return new Optional<T>(Objects.requireNonNull(value), true); }
+
+  public static <T> Optional<T> ofNullable(T value) { return new Optional<T>(value, true); }
+
+  public static <T> Optional<T> empty() { return (Optional<T>)EMPTY; }
+}
+
+Stvarna implementacija ima još zgodnih metoda; vidi:
+  ifPresent(Consumer...)
+  ifPresentOrElse(Consumer, Runnable)
+  orElse
+  orElseGet(Supplier...)
+  orElseThrow
+  orElseThrow(Supplier...)
+  

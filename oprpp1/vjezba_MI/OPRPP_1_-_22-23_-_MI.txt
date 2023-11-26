@@ -1,0 +1,23 @@
+Teorija
+
+Bila je identična kao i na MI 2021./2022.
+
+
+Zadaci
+
+1. Modificirajte 4. zadatak iz 1. domaće zadaće, program StackDemo, tako da podrži i izvođenje funkcija cubed (podizanje na 3. potenciju) te bigger (uzima dva operanda i rezultat je veći od njih), čime će, primjerice, sljedeći izrazi biti izračunljivi: 1 1 + 1 bigger 2 cubed * što treba rezultirati s 16.
+
+2. Modificirajte parametrizirano sučelje Collection iz 3. domaće zadaće tako da dodate pretpostavljenu implementaciju metode copyTransformedIntoIfAllowed. Metoda prima odredišnu kolekciju, objekt koji elemente trenutne kolekcije na neki način pretvara te objekt koji ispituje jesu li tako pretvoreni objekti prihvatljivi. Svaki element trenutne kolekcije najprije se pretvori prvim objektom, zatim ispita drugim objektom, i ako ga ovaj prihvati, doda u odredišnu kolekciju na kraj. Izvorna kolekcija pri tome ostaje nepromijenjena, Za modeliranje objekata koristite standardna funkcijska sučelja. Ilustrativan primjer koda dan je u nastavku. Napravite najopćenitiju moguću parametrizaciju.
+
+Collection<String> prva = new ArrayIndexedCollection<>();
+Collection<String> druga = new ArrayIndexedCollection<>();
+prva.add(„Ivo“);
+prva.add(„Ivka“);
+prva.copyTransformedIntoIfAllowed(druga, Object::hashCode, n->n.intValue()%2==0);
+// Sada bi element od druga mogla biti samo „IVKA“ ako je njezin hashCode paran
+
+3. Modificirajte prvi zadatak 4. domaće zadaće tako da naredba query podrži zadavanje opcije showing koja, ako je prisutna, uvijek dolazi na samom kraju. Naredba prihvaća nazive i redoslijed stupaca koje treba prikazati. Uz ovu modifikaciju, primjeri valjane naredbe bi bili:
+query lastName LIKE „B*“
+query lastName LIKE „B*“ showing lastName
+query lastName LIKE „B*“ showing lastName, jmbag, firstName, firstName
+Ako opcije nema, ispisuju se stupci kako je izvorno bilo zadano u zadaći. Ako je opcija zadana, onda se navodi nazive stupaca i stupci se u ispis tablice dodaju baš navedenim redoslijedom. Primijetite (posljednji primjer naredbe) da se sada neki stupci mogu pojaviti i više puta u ispisu. Ako postoji opcija, ali ne navodi niti jedan stupac, tada se tablica uopće ne printa (ali se ispisuje podatak koliko je redova bilo dohvaćeno).

@@ -1,0 +1,140 @@
+================================================================
+Uporaba alata Maven za automatiziranu izgradnju projekta.
+================================================================
+
+Priprema: skinuti alat (WIN: ZIP arhiva, Linux: tar.gz arhiva), raspakirati ga, i postaviti stazu do njegovog bin direktorija u varijablu okruženja PATH:
+https://maven.apache.org/
+
+Maven očekuje da je projekt strukturiran na sljedeći način.
+
+https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html
+
+DIR
+ +- src
+ +- bin
+ .project
+ .classpath
+
+DIR
+ +- src
+ |  +- main
+ |  |  +- java
+ |  |  +- resources
+ |  |  +- ...
+ |  |  +- webapp
+ |  +- test
+ |  |  +- java
+ |  |  +- resources
+ |  |  +- ...
+ |  |  +- webapp
+ +- target 
+    +- classes         // direktorij u koji idu *.class datoteke
+    +- biblioteka.jar  // program zapakiran u JAR arhivu
+ +- pom.xml
+
+Izvorne kodove stavljamo u src/main/java; slike i druge resurse u src/main/resources. U vršnom direktoriju projekta mora biti datoteka pom.xml koja sadrži definiciju projekta i omogućava konfiguriranje različitih postavki.
+
+Svaki projekt/biblioteka u mavenovom svijetu se opisuje s tri parametra:
+ * grupom (identifikator koji se razlikuje od tvrtke do tvrtke), 
+   hijerarhijskog oblika; npr. org.apache.commons
+ * identifikatorom artefakta (oznaka konkretnog programa/biblioteke), 
+   npr. u grupi org.apache.commons imamo biblioteke commons-lang3,
+   commons-math3, commons-io, commons-collections4, i niz drugih
+ * verzijom, npr. 1.0.0, 1.4.2-RELEASE, ...
+
+Projekt se gradi pokretanjem alata mvn i zadavanjem prikladnog cilja (npr. mvn clean, mvn compile, mvn package).
+
+----------- pom.xml ----------------
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>hr.fer.zemris.java.jmbag0000000000</groupId>
+  <artifactId>p01</artifactId>
+  <version>1.0</version>
+
+  <!-- configuration of basic properties -->
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.source>15</maven.compiler.source>
+    <maven.compiler.target>15</maven.compiler.target>
+    <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+  </properties>
+
+</project>
+----------- pom.xml ----------------
+
+Od jave 9 na dalje za određivanje verzije Jave koja se koristi preporuča se umjesto dva retka sa *.source i *.release koristiti (npr. za javu 17):
+    <maven.compiler.release>17</maven.compiler.release>
+
+Napravimo novi direktorij za ovaj projekt. Stvorimo src/main/java i unutra napravite program P06:
+
+mkdir -p src/main/java/hr/fer/zemris/java/p01
+gedit src/main/java/hr/fer/zemris/java/p01/P06.java
+
+Prethodni pom.xml stavite u korijenski direktorij.
+
+mvn compile
+dir target     // Uočite stvoreni direktorij target/classes
+mvn package
+dir target     // Uočite stvorenu arhivu target/p01-1.0.jar
+
+JAR ekstenzija označava ZIP arhivu (Java ARchive, JAR) koja sadrži *.class datoteke programa i druge potrebne resurse, plus direktorij META-INF. Možete je otvoriti bilo kojim ZIP arhiverom. Program koji ste preveli s mvn compile sada možete pokrenuti na uobičajeni način:
+
+java -cp target/classes hr.fer.zemris.java.p01.P06
+
+Ako imamo JAR, virtualnom stroju možemo reći da bajtkod programa traži u toj arhivi:
+
+java -cp target/p01-1.0.jar hr.fer.zemris.java.p01.P06
+
+Umjesto da sami navodimo classpath, program možemo pokrenuti i preko mavena:
+
+mvn exec:java -Dexec.mainClass="hr.fer.zemris.java.p01.P06"
+
+odnosno ako trebamo predati i argumente naredbenog retka:
+
+mvn exec:java -Dexec.mainClass="hr.fer.zemris.java.p01.P06" -Dexec.args="arg1 arg2 arg3"
+
+Uočite da se u tom slučaju naziv razreda predaje kao parametar -Dexec.mainClass dok se svi argumenti predaju kao jedan string preko parametra -Dexec.args
+
+Danas je na internetu dostupan čitav niz korisnih biblioteka koje možemo iskoristiti u našim programima. Jedna mogućnost jest da ih ručno tražimo i skinemo (download) u neki poddirektorij projekta i potom ih dodamo u classpath pri pokretanju prevodioca i virtualnog stroja. Mnoštvo biblioteka dostupno je u organiziranim maven repozitorijima i maven ih zna sam skinuti i dohvatiti za nas; sve što moramo znati jest groupId, artifactId i version biblioteke koja nam treba. Ako to znamo, u pom.xml moramo deklarirati da nam treba ta biblioteka unutar sekcije <dependencies>. Primjerice, za uključiti org.junit.jupiter:junit-jupiter-api:5.8.1 kao ovisnost dosega "test" dodali bismo:
+
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.8.1</version>
+      <scope>test</scope>  <!-- compile, provided, runtime, test, system; vidi: https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html -->
+    </dependency>
+  </dependencies>
+
+Ako trebamo više biblioteka, sve ih nižemo u istu sekciju <dependencies>:
+
+  <dependencies>
+    <dependency>
+      ... prva ...
+    </dependency>
+    <dependency>
+      ... druga ...
+    </dependency>
+    <dependency>
+      ... treća ...
+    </dependency>
+  </dependencies>
+
+Maven sve ove biblioteke izravno dohvaća s interneta i sprema na jedno mjesto na računalu (u korisnikovom $HOME direktoriju napravi poddirektorij .m2 i sve sprema unutra). Zahvaljujući tome, ako više projekata treba iste biblioteke, one se ne dohvaćaju više puta i ne čuva se po jedna kopija u svakom projektu; umjesto toga, maven u classpath dodaje izravno tu vanjsku lokaciju gdje je spremio biblioteku.
+
+Vlastitu biblioteku u lokalni repozitorij možemo postaviti naredbom:
+mvn install
+Vidi: https://maven.apache.org/plugins/maven-install-plugin/usage.html
+
+pom.xml koji smo koristili na predavanju kao predložak dostupan je na:
+http://java.zemris.fer.hr/nastava/opjj/
+
+Maven nudi mogućnost da se automatski izgenerira potrebna struktura direktorija s datotekom pom.xml. Koristimo naredbu:
+mvn archetype:generate -DarchetypeGroupId=org.apache.maven.archetypes -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.4
+pri čemu će nas ista pitati da utipkamo sve relevantne podatke (groupID, artefactID, version, početni paket). Nažalost, generira se pom.xml za javu 1.7 i junit4, pa to sve treba izmijeniti. Također, generirani pom.xml sadrži dosta više podataka no što uobičajeno koristimo (nije to bez razloga, ali ipak...).
+

@@ -1,0 +1,47 @@
+Instalacija eksterne jar biblioteke u lokalni maven repozitorij
+---------------------------------------------------------------
+
+Situacija: netko Vam je dao jar biblioteku koja nije objavljena i dostupna kroz mavenove repozitorije na internetu; Vaš projekt koristi maven i nekako treba dodati ovisnost prema toj biblioteci.
+
+a) Za tu biblioteku možemo izmisliti koordinate (groupID, artifactID, version) pa ga možemo pod tim koordinatama instalirati u naš lokalni maven repozitorij na računalu. Koristit ćemo "mvn install:install-file" čija je sintaksa:
+
+mvn install:install-file -Dfile=<path-to-file> -DgroupId=<group-id> -DartifactId=<artifact-id> -Dversion=<version> -Dpackaging=<packaging>
+
+ Evo primjera:
+
+mvn install:install-file –Dfile=/home/javko/javalibs/lib1.jar -DgroupId=com.examples.libs -DartifactId=library1 -Dversion=1.0
+
+Nakon toga, u naš projekt dodamo ovisnost na uobičajeni način:
+    <dependency>
+        <groupId>com.examples.libs</groupId>
+        <artifactId>library1</artifactId>
+        <version>1.0</version>
+    </dependency>
+
+Ako imamo i izvorne kodove te javadoc, sve to možemo instalirati u lokalni repozitorij opcijama:
+ -Djavadoc=lib1-javadoc.jar -Dsources=lib1-sources.jar
+
+Na već instalirani artefakt naknadno se mogu instalirati izvorni kodovi i javadoc pojedinačnim naredbama oblika: 
+
+mvn install:install-file -Dfile=path/artifact-sources.jar -DgroupId=xyz.group -DartifactId=artifact -Dversion=1.0.0 -Dpackaging=jar -Dclassifier=sources
+
+gdje je -Dclassifier postavljan na sources ako -Dfile pokazuje na izvorne kodove, odnosno -Dclassifier=javadoc ako -Dfile pokazuje na javadoc.
+
+b) Za tu biblioteku možemo izmisliti koordinate (groupID, artifactID, version), sam jar gurnuti u strukturu direktorija našeg projekta (primjerice u poddirektorij lib), pa deklarirati ovisnost dosega "system" prema tim koordinatama i postaviti direktno stazu do biblioteke:
+
+    <dependency>
+        <groupId>com.examples.libs</groupId>
+        <artifactId>library1</artifactId>
+        <version>1.0</version>
+        <scope>system</scope>
+        <systemPath>${basedir}/lib/lib1.jar</systemPath>
+    </dependency>
+
+Važno: OVO SE NE PREPORUČA!
+
+
+Na Ferka sam postavio:
+prikaz.jar
+prikaz-javadoc.jar
+Trebamo ih importati na koordinate hr.fer.oprpp1.libs:prikaz:1.0. Prva datoteka je sama biblioteka, drugo je jar s javadocom.
+
