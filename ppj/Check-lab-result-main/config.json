@@ -1,7 +1,7 @@
 {
 	"defaults": {
-		"test folder": "C:/5. semestar/ppj/lab_2/lab2_laksa",
-		"program": "C:/Users/vilim/PycharmProjects/pythonProject/SintaksniAnalizator.py",
+		"test folder": "C:/Faks/5.Semestar/ppj/lab_3/testovi/testovi",
+		"program": "C:/Faks/5.Semestar/ppj/lab_3/SemantickiAnalizator.py",
 		"lang": ".py",
 		"extensions": {
 			"input": ".in",

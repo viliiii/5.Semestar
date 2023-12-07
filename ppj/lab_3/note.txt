@@ -1,0 +1,55 @@
+Onda ćemo čitat red po red ulaza i time 
+ulaziti u određene funkcije koje predstavljaju određene
+dijelove koda. U svakoj od njih po drugim pravilima postupati kad naiđemo 
+na varijablu odnosno ovaj IDN.
+
+ako je u P IDN, ako je na popisu vec definiranih, ispisi ga, ako  nije, to je greska.
+
+IDN se u P moze koristit, a u nekim ostalima definirat.
+
+
+Kad izađeš iz scopea u kojoj je neka varijabla bila inicijalizirana i korištena, 
+izbriši ju iz definirane: npr obriši "i" kad izlaziš iz for petlje
+
+
+ind 60 
+
+
+test14:
+e = 1131
+h = (328*219)+468-1187
+j = (e)*155*1222+h
+i = ((624)*800-j-367)*-174-206*1192
+e = 314-950*j-373*i
+n = 1098*317
+x = 148-1173
+za p od 575-1219*1127+x do 616
+	j = (i+1041)*j-n*651
+	za z od x*1200+274 do h
+		h = 996*523
+		v = p*683   
+		e = 476+31-841
+		p = x*(+n)
+	az
+//16	za w od (((61*-289+967-132*h))*(j*381)*515-137*(112))-736*641 do 518
+		za i od (p) do 955-1117
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
