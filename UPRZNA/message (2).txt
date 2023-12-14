@@ -1,0 +1,19 @@
+Upotreba znanja (Knowledge Management - KM) povezuje informacijske procese u učenju, unapređujući organizacijske performanse (Curado i Bontis, 2011). Znanje se dijeli na iskustveno (tacit) i izričito (explicit) (Polanyi, 1962). Iskustveno znanje je teško formalizirano, dok je izričito prenosivo jezikom (Nonaka, 1994). Interakcija između iskustvenog i izričitog znanja ključna je između pojedinaca, grupa i organizacija (Nonaka i Toyama, 2003).
+
+Teorija stvaranja znanja (Nonaka, 1994) opisuje ciklus socijalizacije, eksternalizacije, kombinacije i internalizacije. Balans istraživanja i eksploatacije u upravljanju znanjem (Curado i Bontis, 2011) ključan je za održivu konkurentsku prednost.
+
+Digitalizacija podržava istraživanje inovacija i eksploataciju rutina (Wilkesmann i Wilkesmann, 2018). Tri stupa upravljanja znanjem (tehnologija, procesi, ljudi) su ključna za stjecanje, upravljanje i prijenos znanja (Cepeda Carrión et al., 2004).
+
+Alavi i Leidnerov okvir (2001) obuhvaća stvaranje, pohranu, prijenos i primjenu znanja. Upravljanje znanjem uključuje i tehničke i društvene aspekte (Rojas et al., 2017).
+
+Digitalizacija podržava rutine upravljanja znanjem (Wilkesmann i Wilkesmann, 2018), a Schneider Electric identificira šest izazova digitalizacije: strategija i analiza, planiranje i implementacija, suradnja i mreže, poslovni modeli, ljudski resursi i promjene. Tri stupa upravljanja znanjem su ključna za prevladavanje tih izazova.
+
+Upravljanje znanjem u lancu opskrbe uključuje informacijske sustave, analitiku i osigurava kvalitetno znanje. Uloga upravljanja znanjem u digitalizaciji zahtijeva daljnje istraživanje.
+
+Slika 1 pruža općeniti pregled digitalizacije, naglašavajući povezanost i interdisciplinarnost. Tehnologije poput IoT, računalstva u oblaku i blockchaina oblikuju digitalnu eru (Stroup, 2017).
+
+Decentralizacija i automatizacija ključne su odlike nove digitalne ere. Primjena tehnologija poput dronova, autonomnih vozila, AR i senzora mijenja način upravljanja lancem opskrbe.
+
+Digitalizacija također utječe na proizvodnju, omogućavajući tehnologije poput 3D ispisa i preuredivih proizvodnih sustava. Sve te tehnologije potiču analizu velikih podataka i poboljšavaju lanac opskrbe smanjenjem troškova resursa i vremena (Schniederjans, 2017).
+
+Studije, poput Xuea (2014), potvrđuju važnost upravljanja znanjem u digitalnoj eri. Ipak, potrebno je daljnje istraživanje kako bi se bolje razumjela najbolja primjena upravljanja znanjem u svrhu digitalizacije lanca opskrbe.
