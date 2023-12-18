@@ -71,7 +71,7 @@ public class Newton {
                         module = znold.sub(zn).module();
 
                         iters++;
-                    } while(iters < m && module < 0.001);
+                    } while(iters < m && module > 0.001);
                     int index = rooted.indexOfClosestRootFor(zn, 0.002);
                     //System.out.println(index);
                     data[offset++] = (short)(index+1);
@@ -110,7 +110,7 @@ public class Newton {
             }
         }
 
-        if(line.startsWith("i")){
+        if(line.startsWith("i") ||line.endsWith("i")){
             return new Complex(0, parseIm(line));
         }else {
             return new Complex(Double.parseDouble(line), 0);
@@ -120,6 +120,7 @@ public class Newton {
 
     static double parseIm(String imaginaryPart){
         imaginaryPart = imaginaryPart.replaceAll("i", "");
+        if(imaginaryPart.equals("-")) return -1.0;
         return imaginaryPart.isEmpty() ? 1 : Double.parseDouble(imaginaryPart);
     }
 

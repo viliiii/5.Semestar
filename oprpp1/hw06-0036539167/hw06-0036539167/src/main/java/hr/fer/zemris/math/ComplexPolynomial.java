@@ -3,18 +3,37 @@ package hr.fer.zemris.math;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Class representing the polynomial of complex numbers.
+ */
 public class ComplexPolynomial {
     private final ArrayList<Complex> factors; //[0]*z^3+[1]*z^2+...
 
+    /**
+     * Creates a new ComplexPolynomial object with the given coefficients in decreasing order of powers.
+     *
+     * @param factors the coefficients of the polynomial, in decreasing order of powers
+     */
     public ComplexPolynomial(Complex ...factors) {
         this.factors = new ArrayList<>();
         this.factors.addAll(Arrays.asList(factors).reversed());
     }
 
+    /**
+     * Returns the order of the polynomial, which is the highest power of the variable z that is present in the polynomial.
+     *
+     * @return the order of the polynomial
+     */
     public short order() {
         return (short) (factors.size() - 1);
     }
 
+    /**
+     * Returns the result of multiplying this polynomial with the given polynomial.
+     *
+     * @param p the polynomial to multiply with
+     * @return the result of multiplying this polynomial with the given polynomial
+     */
     public ComplexPolynomial multiply(ComplexPolynomial p) {
         int resultSize = order() + p.order() + 1;
         ArrayList<Complex> resultFactors = new ArrayList<Complex>(Arrays.asList(new Complex[resultSize]));  //kako bi svi bili inicijalno null
@@ -33,6 +52,11 @@ public class ComplexPolynomial {
     }
 
 
+    /**
+     * Returns a new ComplexPolynomial object that is the derivative of this polynomial.
+     *
+     * @return a new ComplexPolynomial object that is the derivative of this polynomial
+     */
     public ComplexPolynomial derive() {
         ArrayList<Complex> newFactors = new ArrayList<>();
         for(int i = 0; i < factors.size()-1; i++) {
@@ -42,7 +66,12 @@ public class ComplexPolynomial {
         return new ComplexPolynomial(newFactors.reversed().toArray(arr));
     }
 
-
+    /**
+     * Returns the result of applying this polynomial to the given complex number.
+     *
+     * @param z the complex number to apply the polynomial to
+     * @return the result of applying this polynomial to the given complex number
+     */
     public Complex apply(Complex z) {
         Complex result = Complex.ZERO;
         for (int i = 0; i < factors.size(); i++) {

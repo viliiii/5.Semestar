@@ -1,0 +1,5 @@
+Tara Baće, 00365 38042
+
+S kolegicom sam raspravio kako bi se implementiralo pretvaranje
+iz rooted polinoma u onaj s eksponentima i zaključili smo da za to
+postoje Vieteove formule. 

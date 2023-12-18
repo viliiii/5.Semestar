@@ -3,6 +3,9 @@ package hr.fer.zemris.math;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class representing complex number with its real and imaginary parts.
+ */
 public class Complex {
     private final double re;
     private final double im;
@@ -99,15 +102,6 @@ public class Complex {
      * @throws IllegalArgumentException if the specified power is negative
      */
     public Complex power(int n) {
-        /*if (n < 0){
-            throw new IllegalArgumentException("Invalid power");
-        }
-        Complex temp = new Complex(1,0);
-        for (int i = 0; i < n; i++) {
-            temp = temp.multiply(this);
-        }
-        return temp;*/
-
         double angle = Math.atan2(im, re);
         double r = module();
         return new Complex(Math.pow(r, n) * Math.cos(n*angle), Math.pow(r, n) * Math.sin(n*angle));

@@ -4,10 +4,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
+/**
+ * Class representing polynomial with roots and complex numbers.
+ */
 public class ComplexRootedPolynomial {
     private final Complex constant;
     private ArrayList<Complex> roots;
 
+    /**
+     * Creates a new instance of ComplexRootedPolynomial with the given constant term and roots.
+     *
+     * @param constant the constant term of the polynomial
+     * @param roots    the roots of the polynomial
+     * @throws IllegalArgumentException if the roots array is null
+     */
     public ComplexRootedPolynomial(Complex constant, Complex ... roots) {
         if(roots == null) throw new IllegalArgumentException("roots can not be null");
         this.constant = constant;
@@ -15,6 +25,12 @@ public class ComplexRootedPolynomial {
         this.roots.addAll(Arrays.asList(roots));
     }
 
+    /**
+     * Evaluates the polynomial at the given complex number.
+     *
+     * @param z the complex number at which to evaluate the polynomial
+     * @return the value of the polynomial at the given complex number
+     */
     public Complex apply(Complex z) {
         Complex result = constant;
         for(Complex r : roots){
@@ -23,7 +39,12 @@ public class ComplexRootedPolynomial {
         return result;
     }
 
-    // converts this representation to ComplexPolynomial type
+
+    /**
+     * Converts this representation of a complex rooted polynomial to a {@link ComplexPolynomial} type.
+     *
+     * @return a {@link ComplexPolynomial} representation of this complex rooted polynomial
+     */
     public ComplexPolynomial toComplexPolynom() {
         ArrayList<Complex> factors = new ArrayList<Complex>();  //bit će ih roots.size() + 1
         factors.add(constant);
