@@ -1,0 +1,34 @@
+@Override
+    public void layoutContainer(Container parent) {
+        Insets parentInsets = parent.getInsets();
+        int n = parent.getComponentCount();
+
+        double oneWidth = (parent.getWidth() * 1.0) / 7;
+        double oneHeight = ((parent.getHeight() - parentInsets.top - parentInsets.bottom) * 1.0) / 5;
+
+        for (int i = 0; i < n; i++) {
+            Component comp = parent.getComponent(i);
+            RCPosition pos = positions.get(comp);
+
+            if(pos.getRow() == 1 && pos.getColumn() == 1){
+                int w = (int) Math.ceil(oneWidth);
+                int h = (int) Math.ceil(oneHeight);
+                comp.setBounds(parentInsets.left, parentInsets.top, w*5 + gap*5, h);
+
+            }else if(i%2 != 0) {
+                int w = (int) Math.ceil(oneWidth);
+                int h = (int) Math.ceil(oneHeight);
+                comp.setBounds(parentInsets.left + (pos.getColumn() - 1)*w + (pos.getColumn() - 1)*gap,
+                        parentInsets.top + (pos.getRow() - 1)*h + (pos.getRow() - 1)*gap,
+                        w, h);
+            }else{
+                int w = (int) Math.floor(oneWidth);
+                int h = (int) Math.floor(oneHeight);
+                comp.setBounds(parentInsets.left + (pos.getColumn() - 1)*w + (pos.getColumn() - 1)*gap,
+                        parentInsets.top + (pos.getRow() - 1)*h + (pos.getRow() - 1)*gap,
+                        w, h);
+            }
+
+
+        }
+    }

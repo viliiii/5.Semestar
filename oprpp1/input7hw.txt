@@ -1,0 +1,9 @@
+Number of people in the car
+Frequency
+1,2212 2,2202 3,2216 4,2210 5,2202
+2200
+2222
+2
+
+
+
