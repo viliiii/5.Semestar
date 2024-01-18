@@ -1,0 +1,2 @@
+Tara Baće - 0036538042
+S kolegicom sam raspravio o Processor klasi i metodi addAll koja koristi lokalni procesor. 

@@ -1,3 +1,4 @@
+/*
 package  hr.fer.oprpp1.hw08.jnotepadpp;
 
 import java.awt.BorderLayout;
@@ -301,9 +302,11 @@ public class JNotepad extends JFrame {
 		this.getContentPane().add(toolBar, BorderLayout.PAGE_START);
 	}
 	
-	/**
+	*/
+/**
 	 * @param args
-	 */
+	 *//*
+
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			
@@ -315,3 +318,4 @@ public class JNotepad extends JFrame {
 	}
 
 }
+*/

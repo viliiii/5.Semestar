@@ -96,4 +96,9 @@ public class DefaultSingleDocumentModel implements SingleDocumentModel {
             listener.documentFilePathUpdated(this);
         }
     }
+
+    /* unregister appropriate listeners from “old” current document, register
+them on “new” current document and update presented information.
+
+    napravi metodu koja prima singledocumentmodel i skida s trenutnog listenere i stavlja na drugi.*/
 }

@@ -24,6 +24,8 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
     public DefaultMultipleDocumentModel() {
         documentList = new ArrayList<>();
         listeners = new ArrayList<>();
+
+        createNewDocument();
     }
 
     @Override
@@ -35,6 +37,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
     public SingleDocumentModel createNewDocument() {
 
         SingleDocumentModel newDoc = new DefaultSingleDocumentModel(null, "");
+        //newDoc.addSingleDocumentListener(new );
         documentList.add(newDoc);
         this.add(newDoc.getTextComponent());
         setSelectedIndex(documentList.indexOf(newDoc));
@@ -52,7 +55,12 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
     @Override
     public SingleDocumentModel loadDocument(Path path) {
         if(path == null) throw new NullPointerException("Path cannot be null.");
-        if(documentList.stream().anyMatch(dm -> dm.getFilePath().equals(path))) {
+        if(documentList.stream().anyMatch(dm -> {
+            if(dm.getFilePath() != null){
+                return dm.getFilePath().equals(path);
+            }else{
+            return false;}
+        })) {
             setSelectedIndex(getIndexOfDocument(findForPath(path)));
             current = findForPath(path);
             return null;
@@ -89,8 +97,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
             model.setModified(false);
 
         }catch (IOException e) {
-            //poruka korisniku valjda!!!!!!!
-            e.printStackTrace();
+            throw new DocumentModelException("Could not save.");
         }
     }
 

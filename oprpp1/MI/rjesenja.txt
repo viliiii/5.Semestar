@@ -1,0 +1,144 @@
+Zadatak 1 
+--------------------------------------------------------------------
+for (String elem : split) {
+            try {
+                int number = Integer.parseInt(elem);
+                stack.push(number);
+            } catch (NumberFormatException ex) {
+                int operator2;
+                int operator1;
+
+                switch (elem) {
+                    case "+":
+                        operator2 = (int) stack.pop();
+                        operator1 = (int) stack.pop();
+                        stack.push(operator1 + operator2);
+                        break;
+                    case "-":
+                        operator2 = (int) stack.pop();
+                        operator1 = (int) stack.pop();
+                        stack.push(operator1 - operator2);
+                        break;
+                    case "/":
+                        operator2 = (int) stack.pop();
+                        operator1 = (int) stack.pop();
+                        if (operator2 == 0) {
+                            System.out.println("You can not divide by zero.");
+                            System.exit(0);
+                        } else {
+                            stack.push(operator1 / operator2);
+                        }
+                        break;
+                    case "%":
+                        operator2 = (int) stack.pop();
+                        operator1 = (int) stack.pop();
+                        stack.push(operator1 % operator2);
+                        break;
+                    case "*":
+                        operator2 = (int) stack.pop();
+                        operator1 = (int) stack.pop();
+                        stack.push(operator1 * operator2);
+                        break;
+//DODATAK
+//----------------------------------------------------------------------------------
+                    case "cubed":
+                        operator1 = (int) stack.pop();
+                        stack.push((int)Math.pow(operator1,3));
+                        break;
+                    case "bigger":
+                        operator2 = (int) stack.pop();
+                        operator1 = (int) stack.pop();
+                        stack.push(Math.max(operator1, operator2));
+                        break;
+//------------------------------------------------------------------------------
+                }
+            }
+        }
+
+
+Dodao sam mogućnost da je element ulaznog niza znakova i string "cubed" i string "bigger", 
+ako se na njih naiđe, postupa se adekvatno zadanoj naredbi.
+
+
+
+
+Zadatak 2
+--------------------------------------------------------------------
+
+    default <U> void copyTransformedIntoIfAllowed(Collection<? super T> other, Function<? super T, ? extends U> function, Predicate<? super U> predicate) {
+
+        this.forEach(new Processor<T>() {
+            @Override
+            public void process(T value) {
+                U transformed = function.apply(value);
+
+                if(predicate.test(transformed)) other.add(value);
+            }
+        });
+    }
+
+Ova funkcija je dodana u sučelje Collection.
+
+
+
+
+Zadatak 3
+--------------------------------------------------------------------
+U Lexer sam dodao da može prepoznati da je napisano showing i TokenType.SHOWING
+(Nisam se bavio provjerom jel piše točno showing, inače bi napravio while i stringBuilder da 
+se provjeri piše li točno showing i ako ne piše, to bi bila iznimka): 
+//Showing included
+            if(data[currentIndex] == 's'){
+                currentIndex = currentIndex + 7;
+                return new Token(TokenType.SHOWING, "showing");
+            }
+
+
+U while petlju parsera sam dodao slučaj da dođe token SHOWING i u parser sam dodao
+privatno polje requiredColumns i getter za isto.
+
+if(token.getType() == TokenType.SHOWING){
+                requiredColumns = new LinkedList<>();
+                token = queryLexer.nextToken();
+                while (token.getType() != TokenType.EOF){
+                    requiredColumns.add(token.getType());
+                    token = queryLexer.nextToken();
+                }
+
+            }
+
+
+U StudentDB main metodi sam izmjenio metodu za formatiranje, dodao sam da prima i parser:
+List<String> output = format(selectedRecords, parser);
+output.forEach(System.out::println); //ovo je finalno printanje u mom kodu
+
+
+Na kraju, mijenjao sam metodu format, provjeravao sam je li parser.getRequiredCollumns() empty i ovisno o tome sam prilagođavao ispis.
+
+else{
+                //Print only required columns
+                if(parser.getRequiredColumns().isEmpty()) break;
+                sbStudent.append("| ");
+                for(QueryParser.TokenType type: parser.getRequiredColumns()){
+
+                    switch (type){
+                        case FIRSTNAME:
+                            sbStudent.append(r.getFirstName());
+                            sbStudent.append(" ".repeat(1 + longestFirstname-r.getFirstName().length()));
+                            sbStudent.append("| ");
+                            break;
+                        case LASTNAME:
+                            sbStudent.append(r.getLastName());
+                            sbStudent.append(" ".repeat(1 + longestLastname-r.getLastName().length()));
+                            sbStudent.append("| ");
+                            break;
+                        case JMBAG:
+                            sbStudent.append(r.getJmbag());
+                            sbStudent.append(" | ");
+                            break;
+
+                    }
+                }
+            }
+
+StringBuilder za najgornju i najdonju liniju se puni analogno, prolaskom kroz requiredCollumns.
