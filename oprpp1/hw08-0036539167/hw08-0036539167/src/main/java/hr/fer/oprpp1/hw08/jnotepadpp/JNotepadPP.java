@@ -2,13 +2,20 @@ package hr.fer.oprpp1.hw08.jnotepadpp;
 
 import hr.fer.oprpp1.hw08.jnotepadpp.defaultModels.DefaultMultipleDocumentModel;
 import hr.fer.oprpp1.hw08.jnotepadpp.exceptions.DocumentModelException;
+import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentListener;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentModel;
+import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentListener;
+import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentModel;
 
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
@@ -17,10 +24,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class JNotepadPP extends JFrame {
+    @Serial
     private static final long serialVersionUID = 1L;
 
 
     private MultipleDocumentModel model;
+    private List<SingleDocumentListener> singleDocumentListeners;
 
     public JNotepadPP() {
 
@@ -28,6 +37,7 @@ public class JNotepadPP extends JFrame {
         setLocation(0, 0);
         setSize(600, 600);
         model = new DefaultMultipleDocumentModel();
+        singleDocumentListeners = new ArrayList<>();
 
         initGUI();
     }
@@ -40,11 +50,22 @@ public class JNotepadPP extends JFrame {
         createActions();
         createMenus();
         createToolbars();
+        initMultipleModelListeners();
 
     }
 
+    private Action openNewDocumentAction = new AbstractAction() {
+        @Serial
+        private static final long serialVersionUID = 1L;
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            model.createNewDocument();
+        }
+    };
+
     private Action openDocumentAction = new AbstractAction() {
 
+        @Serial
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -67,38 +88,18 @@ public class JNotepadPP extends JFrame {
                         JOptionPane.ERROR_MESSAGE);
             }
 
-            /*if(!Files.isReadable(filePath)) {
-                JOptionPane.showMessageDialog(
-                        JNotepadPP.this,
-                        "Datoteka "+fileName.getAbsolutePath()+" ne postoji!",
-                        "Pogreška",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            byte[] okteti;
-            try {
-                okteti = Files.readAllBytes(filePath);
-            } catch(Exception ex) {
-                JOptionPane.showMessageDialog(
-                        JNotepad.this,
-                        "Pogreška prilikom čitanja datoteke "+fileName.getAbsolutePath()+".",
-                        "Pogreška",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            String tekst = new String(okteti, StandardCharsets.UTF_8);
-            editor.setText(tekst);
-            openedFilePath = filePath;*/
         }
     };
 
-    //nemoj omogucit save obicni sve dok je path null.
-    private Action saveAsDocumentAction = new AbstractAction() {
+    private Action saveDocumentAction = new AbstractAction() {
 
+        @Serial
         private static final long serialVersionUID = 1L;
-
         @Override
         public void actionPerformed(ActionEvent e) {
+
+            Path newPath = null;
+
             if(model.getCurrentDocument().getFilePath()==null) {
                 JFileChooser jfc = new JFileChooser();
                 jfc.setDialogTitle("Save document");
@@ -110,8 +111,49 @@ public class JNotepadPP extends JFrame {
                             JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                model.getCurrentDocument().setFilePath(jfc.getSelectedFile().toPath());
+                newPath = jfc.getSelectedFile().toPath();
+
             }
+
+
+            try{
+                model.saveDocument(model.getCurrentDocument(), newPath);
+            } catch (DocumentModelException mde) {
+                JOptionPane.showMessageDialog(
+                        JNotepadPP.this,
+                        "Pogreška prilikom zapisivanja datoteke "+model.getCurrentDocument().getFilePath().toFile().getAbsolutePath()+".\nPažnja: nije jasno u kojem je stanju datoteka na disku!",
+                        "Pogreška",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            JOptionPane.showMessageDialog(
+                    JNotepadPP.this,
+                    "Datoteka je snimljena.",
+                    "Informacija",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+    };
+
+    private Action saveAsDocumentAction = new AbstractAction() {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+                JFileChooser jfc = new JFileChooser();
+                jfc.setDialogTitle("Save document");
+                if(jfc.showSaveDialog(JNotepadPP.this)!=JFileChooser.APPROVE_OPTION) {
+                    JOptionPane.showMessageDialog(
+                            JNotepadPP.this,
+                            "Ništa nije snimljeno.",
+                            "Upozorenje",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                model.getCurrentDocument().setFilePath(jfc.getSelectedFile().toPath());
+
             try {
                 model.saveDocument(model.getCurrentDocument(), model.getCurrentDocument().getFilePath());
             } catch (DocumentModelException mde) {
@@ -132,6 +174,7 @@ public class JNotepadPP extends JFrame {
 
     private Action deleteSelectedPartAction = new AbstractAction() {
 
+        @Serial
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -155,6 +198,7 @@ public class JNotepadPP extends JFrame {
 
     private Action toggleCaseAction = new AbstractAction() {
 
+        @Serial
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -194,6 +238,7 @@ public class JNotepadPP extends JFrame {
 
     private Action exitAction = new AbstractAction() {
 
+        @Serial
         private static final long serialVersionUID = 1L;
 
         @Override
@@ -216,18 +261,37 @@ public class JNotepadPP extends JFrame {
                 Action.SHORT_DESCRIPTION,
                 "Used to open existing file from disk.");
 
+        openNewDocumentAction.putValue(Action.NAME, "New");
+        openNewDocumentAction.putValue(Action.ACCELERATOR_KEY,
+                KeyStroke.getKeyStroke("control n"));
+        openNewDocumentAction.putValue(Action.SHORT_DESCRIPTION,
+                "Creates new blank document.");
+
         saveAsDocumentAction.putValue(
                 Action.NAME,
-                "Save");
+                "SaveAs");
         saveAsDocumentAction.putValue(
                 Action.ACCELERATOR_KEY,
-                KeyStroke.getKeyStroke("control S"));
+                KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         saveAsDocumentAction.putValue(
                 Action.MNEMONIC_KEY,
                 KeyEvent.VK_S);
         saveAsDocumentAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                "Used to save current file to disk.");
+                "Used to save current file to disk with specified new name.");
+
+        saveDocumentAction.putValue(
+                Action.NAME,
+                "Save"
+        );
+        saveDocumentAction.putValue(
+                Action.ACCELERATOR_KEY,
+                KeyStroke.getKeyStroke("control s")
+        );
+        saveDocumentAction.putValue(
+                Action.SHORT_DESCRIPTION,
+                "Used to save current file to disk."
+        );
 
         deleteSelectedPartAction.putValue(
                 Action.NAME,
@@ -276,7 +340,41 @@ public class JNotepadPP extends JFrame {
         JMenu fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
 
+        fileMenu.add(new JMenuItem(openNewDocumentAction));
         fileMenu.add(new JMenuItem(openDocumentAction));
+        JMenuItem saveItem = new JMenuItem(saveDocumentAction);
+        SingleDocumentListener saveItemListener = new SingleDocumentListener() {
+            @Override
+            public void documentModifyStatusUpdated(SingleDocumentModel model) {
+                saveItem.setEnabled(model.isModified());
+            }
+
+            @Override
+            public void documentFilePathUpdated(SingleDocumentModel model) {
+
+            }
+        };
+        model.getCurrentDocument().addSingleDocumentListener(saveItemListener);
+        model.addMultipleDocumentListener(new MultipleDocumentListener() {
+            @Override
+            public void currentDocumentChanged(SingleDocumentModel previousModel, SingleDocumentModel currentModel) {
+
+            }
+
+            @Override
+            public void documentAdded(SingleDocumentModel model) {
+                saveItem.setEnabled(false);
+            }
+
+            @Override
+            public void documentRemoved(SingleDocumentModel model) {
+
+            }
+        });
+        singleDocumentListeners.add(saveItemListener);
+        saveItem.setEnabled(false);
+        fileMenu.add(saveItem);
+
         fileMenu.add(new JMenuItem(saveAsDocumentAction));
         fileMenu.addSeparator();
         fileMenu.add(new JMenuItem(exitAction));
@@ -294,13 +392,71 @@ public class JNotepadPP extends JFrame {
         JToolBar toolBar = new JToolBar("Alati");
         toolBar.setFloatable(true);
 
+        toolBar.add(new JButton(openNewDocumentAction));
         toolBar.add(new JButton(openDocumentAction));
+        JButton saveButton = new JButton(saveDocumentAction);
+        saveButton.setEnabled(false);
+        SingleDocumentListener saveButtonListener = new SingleDocumentListener() {
+            @Override
+            public void documentModifyStatusUpdated(SingleDocumentModel model) {
+                saveButton.setEnabled(model.isModified());
+            }
+
+            @Override
+            public void documentFilePathUpdated(SingleDocumentModel model) {
+
+            }
+        };
+        model.getCurrentDocument().addSingleDocumentListener(saveButtonListener);
+        model.addMultipleDocumentListener(new MultipleDocumentListener() {
+            @Override
+            public void currentDocumentChanged(SingleDocumentModel previousModel, SingleDocumentModel currentModel) {
+
+            }
+
+            @Override
+            public void documentAdded(SingleDocumentModel model) {
+                saveButton.setEnabled(false);
+            }
+
+            @Override
+            public void documentRemoved(SingleDocumentModel model) {
+
+            }
+        });
+        singleDocumentListeners.add(saveButtonListener);
+        toolBar.add(saveButton);
         toolBar.add(new JButton(saveAsDocumentAction));
         toolBar.addSeparator();
         toolBar.add(new JButton(deleteSelectedPartAction));
         toolBar.add(new JButton(toggleCaseAction));
 
         this.getContentPane().add(toolBar, BorderLayout.PAGE_START);
+    }
+
+    private void initMultipleModelListeners() {
+        MultipleDocumentListener mainListener = new MultipleDocumentListener() {
+            @Override
+            public void currentDocumentChanged(SingleDocumentModel previousModel, SingleDocumentModel currentModel) {
+                for(var l: singleDocumentListeners){
+                    previousModel.removeSingleDocumentListener(l);
+                    currentModel.addSingleDocumentListener(l);
+                }
+
+            }
+
+            @Override
+            public void documentAdded(SingleDocumentModel model) {
+
+            }
+
+            @Override
+            public void documentRemoved(SingleDocumentModel model) {
+
+            }
+        };
+
+        model.addMultipleDocumentListener(mainListener);
     }
 
     /**

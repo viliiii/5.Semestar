@@ -24,6 +24,7 @@ public class DefaultSingleDocumentModel implements SingleDocumentModel {
         textComponent = new JTextArea(content);
         modified = false;
         listeners = new ArrayList<>();
+        this.filePath = filePath;
 
         textComponent.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -33,7 +34,7 @@ public class DefaultSingleDocumentModel implements SingleDocumentModel {
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                setModified(true);
+                setModified(textComponent.getDocument().getLength() != 0);
             }
 
             @Override
@@ -96,9 +97,4 @@ public class DefaultSingleDocumentModel implements SingleDocumentModel {
             listener.documentFilePathUpdated(this);
         }
     }
-
-    /* unregister appropriate listeners from “old” current document, register
-them on “new” current document and update presented information.
-
-    napravi metodu koja prima singledocumentmodel i skida s trenutnog listenere i stavlja na drugi.*/
 }

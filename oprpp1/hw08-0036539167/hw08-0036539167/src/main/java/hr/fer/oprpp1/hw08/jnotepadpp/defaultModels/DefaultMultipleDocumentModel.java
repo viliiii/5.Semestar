@@ -214,5 +214,4 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
         }
     }
 
-    //addChangeListener tu treba vjv
 }
