@@ -45,7 +45,8 @@ public class JNotepadPP extends JFrame {
     private void initGUI() {
 
         this.getContentPane().setLayout(new BorderLayout());
-        this.getContentPane().add(model.getVisualComponent(), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(model.getVisualComponent());
+        this.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
         createActions();
         createMenus();
@@ -152,7 +153,19 @@ public class JNotepadPP extends JFrame {
                             JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                model.getCurrentDocument().setFilePath(jfc.getSelectedFile().toPath());
+
+                File selectedFile = jfc.getSelectedFile();
+
+                if(selectedFile.exists()){
+                    int result = JOptionPane.showConfirmDialog(JNotepadPP.this,
+                            "Datoteka već postoji, želite li je zamijeniti?",
+                            "Upozorenje",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE);
+                    if(result != JOptionPane.YES_OPTION) return;
+                }
+
+                model.getCurrentDocument().setFilePath(selectedFile.toPath());
 
             try {
                 model.saveDocument(model.getCurrentDocument(), model.getCurrentDocument().getFilePath());
@@ -169,6 +182,17 @@ public class JNotepadPP extends JFrame {
                     "Datoteka je snimljena.",
                     "Informacija",
                     JOptionPane.INFORMATION_MESSAGE);
+        }
+    };
+
+    private Action closeDocumentAction = new AbstractAction() {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            model.closeDocument(model.getCurrentDocument());
         }
     };
 
@@ -263,7 +287,7 @@ public class JNotepadPP extends JFrame {
 
         openNewDocumentAction.putValue(Action.NAME, "New");
         openNewDocumentAction.putValue(Action.ACCELERATOR_KEY,
-                KeyStroke.getKeyStroke("control n"));
+                KeyStroke.getKeyStroke("control N"));
         openNewDocumentAction.putValue(Action.SHORT_DESCRIPTION,
                 "Creates new blank document.");
 
@@ -286,12 +310,18 @@ public class JNotepadPP extends JFrame {
         );
         saveDocumentAction.putValue(
                 Action.ACCELERATOR_KEY,
-                KeyStroke.getKeyStroke("control s")
+                KeyStroke.getKeyStroke("control S")
         );
         saveDocumentAction.putValue(
                 Action.SHORT_DESCRIPTION,
                 "Used to save current file to disk."
         );
+
+        closeDocumentAction.putValue(Action.NAME, "Close");
+        closeDocumentAction.putValue(Action.ACCELERATOR_KEY,
+                KeyStroke.getKeyStroke("control E"));
+        closeDocumentAction.putValue(Action.SHORT_DESCRIPTION,
+                "Closes the current document.");
 
         deleteSelectedPartAction.putValue(
                 Action.NAME,
@@ -355,28 +385,14 @@ public class JNotepadPP extends JFrame {
             }
         };
         model.getCurrentDocument().addSingleDocumentListener(saveItemListener);
-        model.addMultipleDocumentListener(new MultipleDocumentListener() {
-            @Override
-            public void currentDocumentChanged(SingleDocumentModel previousModel, SingleDocumentModel currentModel) {
 
-            }
-
-            @Override
-            public void documentAdded(SingleDocumentModel model) {
-                saveItem.setEnabled(false);
-            }
-
-            @Override
-            public void documentRemoved(SingleDocumentModel model) {
-
-            }
-        });
         singleDocumentListeners.add(saveItemListener);
         saveItem.setEnabled(false);
         fileMenu.add(saveItem);
 
         fileMenu.add(new JMenuItem(saveAsDocumentAction));
         fileMenu.addSeparator();
+        fileMenu.add(new JMenuItem(closeDocumentAction));
         fileMenu.add(new JMenuItem(exitAction));
 
         JMenu editMenu = new JMenu("Edit");
@@ -408,25 +424,11 @@ public class JNotepadPP extends JFrame {
             }
         };
         model.getCurrentDocument().addSingleDocumentListener(saveButtonListener);
-        model.addMultipleDocumentListener(new MultipleDocumentListener() {
-            @Override
-            public void currentDocumentChanged(SingleDocumentModel previousModel, SingleDocumentModel currentModel) {
 
-            }
-
-            @Override
-            public void documentAdded(SingleDocumentModel model) {
-                saveButton.setEnabled(false);
-            }
-
-            @Override
-            public void documentRemoved(SingleDocumentModel model) {
-
-            }
-        });
         singleDocumentListeners.add(saveButtonListener);
         toolBar.add(saveButton);
         toolBar.add(new JButton(saveAsDocumentAction));
+        toolBar.add(new JButton(closeDocumentAction));
         toolBar.addSeparator();
         toolBar.add(new JButton(deleteSelectedPartAction));
         toolBar.add(new JButton(toggleCaseAction));
@@ -442,7 +444,7 @@ public class JNotepadPP extends JFrame {
                     previousModel.removeSingleDocumentListener(l);
                     currentModel.addSingleDocumentListener(l);
                 }
-
+                currentModel.setModified(currentModel.isModified());
             }
 
             @Override
@@ -459,9 +461,7 @@ public class JNotepadPP extends JFrame {
         model.addMultipleDocumentListener(mainListener);
     }
 
-    /**
-     * @param args
-     */
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
 

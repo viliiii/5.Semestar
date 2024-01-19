@@ -25,6 +25,13 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
         documentList = new ArrayList<>();
         listeners = new ArrayList<>();
 
+        addChangeListener((e) -> {
+            SingleDocumentModel newCurrent = documentList.get(getSelectedIndex());
+            notifyListenersCurrentDocumentChanged(current, newCurrent);
+            current = newCurrent;
+
+        });
+
         createNewDocument();
     }
 
@@ -43,6 +50,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
         setSelectedIndex(documentList.indexOf(newDoc));
         notifyListenersCurrentDocumentChanged(current, newDoc);
         current = newDoc;
+        setTitleAt(documentList.indexOf(current), "unnamed");
         notifyListenersDocumentAdded();
         return newDoc;
     }
@@ -62,6 +70,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
             return false;}
         })) {
             setSelectedIndex(getIndexOfDocument(findForPath(path)));
+            notifyListenersCurrentDocumentChanged(current, findForPath(path));
             current = findForPath(path);
             return null;
         }
@@ -74,6 +83,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
             setSelectedIndex(documentList.indexOf(newDoc));
             notifyListenersCurrentDocumentChanged(current, newDoc);
             current = newDoc;
+            setTitleAt(documentList.indexOf(current), current.getFilePath().getFileName().toString());
             notifyListenersDocumentAdded();
             return newDoc;
         }catch(IOException e){
@@ -95,7 +105,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
 
             model.setFilePath(newPath);
             model.setModified(false);
-
+            setTitleAt(documentList.indexOf(current), current.getFilePath().getFileName().toString());
         }catch (IOException e) {
             throw new DocumentModelException("Could not save.");
         }
@@ -108,6 +118,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
             setSelectedIndex(documentList.indexOf(current));
         }
         documentList.remove(model);
+        this.remove(model.getTextComponent());
         notifyListenersDocumentRemoved(model);
     }
 
