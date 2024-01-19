@@ -3,10 +3,13 @@ package hr.fer.oprpp1.hw08.jnotepadpp.defaultModels;
 import hr.fer.oprpp1.hw08.jnotepadpp.exceptions.DocumentModelException;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentListener;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentModel;
+import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentListener;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentModel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -20,19 +23,37 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
     private List<SingleDocumentModel> documentList;
     private SingleDocumentModel current;
     private List<MultipleDocumentListener> listeners;
+    private SingleDocumentListener iconListener;
+
+    private ImageIcon modified;
+    private ImageIcon notModified;
+
 
     public DefaultMultipleDocumentModel() {
         documentList = new ArrayList<>();
         listeners = new ArrayList<>();
-
         addChangeListener((e) -> {
             SingleDocumentModel newCurrent = documentList.get(getSelectedIndex());
             notifyListenersCurrentDocumentChanged(current, newCurrent);
             current = newCurrent;
 
         });
+        initIcons();
+        iconListener = new SingleDocumentListener() {
+            @Override
+            public void documentModifyStatusUpdated(SingleDocumentModel model) {
+                setIconAt(documentList.indexOf(current), current.isModified() ? modified : notModified);
+            }
+
+            @Override
+            public void documentFilePathUpdated(SingleDocumentModel model) {
+
+            }
+        };
+
 
         createNewDocument();
+        setIconAt(documentList.indexOf(current), current.isModified() ? modified : notModified);
     }
 
     @Override
@@ -44,13 +65,14 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
     public SingleDocumentModel createNewDocument() {
 
         SingleDocumentModel newDoc = new DefaultSingleDocumentModel(null, "");
-        //newDoc.addSingleDocumentListener(new );
+        newDoc.addSingleDocumentListener(iconListener); //!!
         documentList.add(newDoc);
         this.add(newDoc.getTextComponent());
         setSelectedIndex(documentList.indexOf(newDoc));
         notifyListenersCurrentDocumentChanged(current, newDoc);
         current = newDoc;
         setTitleAt(documentList.indexOf(current), "unnamed");
+        setToolTipTextAt(documentList.indexOf(current), "unnamed");
         notifyListenersDocumentAdded();
         return newDoc;
     }
@@ -78,12 +100,14 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
         try{
             String content = Files.readString(path);
             SingleDocumentModel newDoc = new DefaultSingleDocumentModel(path, content);
+            newDoc.addSingleDocumentListener(iconListener);
             documentList.add(newDoc);
             this.add(newDoc.getTextComponent());
             setSelectedIndex(documentList.indexOf(newDoc));
             notifyListenersCurrentDocumentChanged(current, newDoc);
             current = newDoc;
             setTitleAt(documentList.indexOf(current), current.getFilePath().getFileName().toString());
+            setToolTipTextAt(documentList.indexOf(current), current.getFilePath().toString());
             notifyListenersDocumentAdded();
             return newDoc;
         }catch(IOException e){
@@ -106,6 +130,9 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
             model.setFilePath(newPath);
             model.setModified(false);
             setTitleAt(documentList.indexOf(current), current.getFilePath().getFileName().toString());
+            setToolTipTextAt(documentList.indexOf(current), current.getFilePath().toString());
+            setIconAt(documentList.indexOf(current), current.isModified() ? modified : notModified);
+
         }catch (IOException e) {
             throw new DocumentModelException("Could not save.");
         }
@@ -224,5 +251,26 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
             l.documentRemoved(model);
         }
     }
+
+    private void initIcons() {
+        InputStream is = this.getClass().getResourceAsStream("icons/disketteModified.png");
+        InputStream is2 = this.getClass().getResourceAsStream("icons/diskette.png");
+        if(is == null || is2 == null) throw new DocumentModelException("Could not load icon.");
+        byte[] bytes1;
+        byte[] bytes2;
+        try {
+            bytes1 = is.readAllBytes();
+            bytes2 = is2.readAllBytes();
+            is.close();
+            is2.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        modified = new ImageIcon(bytes1);
+        modified = new ImageIcon(modified.getImage().getScaledInstance(10,10, Image.SCALE_SMOOTH));
+        notModified = new ImageIcon(bytes2);
+        notModified = new ImageIcon(notModified.getImage().getScaledInstance(10,10, Image.SCALE_SMOOTH));
+    }
+
 
 }

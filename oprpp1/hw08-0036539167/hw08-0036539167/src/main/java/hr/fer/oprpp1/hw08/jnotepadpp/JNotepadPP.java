@@ -15,27 +15,31 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class JNotepadPP extends JFrame {
     @Serial
     private static final long serialVersionUID = 1L;
 
-
+    private StringBuilder clipBoard;
     private final MultipleDocumentModel model;
     private final List<SingleDocumentListener> singleDocumentListeners;
+
 
     public JNotepadPP() {
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocation(0, 0);
-        setSize(600, 600);
+        setSize(800, 600);
         model = new DefaultMultipleDocumentModel();
         singleDocumentListeners = new ArrayList<>();
-
+        clipBoard = new StringBuilder();
         initGUI();
     }
 
@@ -193,6 +197,44 @@ public class JNotepadPP extends JFrame {
         }
     };
 
+    private final Action cutSelectedPartAction = new AbstractAction() {
+        @Serial
+        private static final long serialVersionUID = 1L;
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            simpleAction((o, l, d)->{
+                clipBoard.setLength(0);
+                clipBoard.append(d.getText(o,l));
+                d.remove(o, l);
+            });
+        }
+    };
+
+    private final Action copySelectedPartAction = new AbstractAction() {
+        @Serial
+        private static final long serialVersionUID = 1L;
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            simpleAction((o, l, d) -> {
+                clipBoard.setLength(0);
+                clipBoard.append(d.getText(o,l));
+            });
+        }
+    };
+
+    private final Action pasteClipboardAction = new AbstractAction() {
+        @Serial
+        private static final long serialVersionUID = 1L;
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            simpleAction((o, l, d) -> {
+                JTextArea editor = model.getCurrentDocument().getTextComponent();
+                d.insertString(editor.getCaret().getMark(), clipBoard.toString(), null);
+            });
+        }
+    };
+
+
     private final Action deleteSelectedPartAction = new AbstractAction() {
 
         @Serial
@@ -200,20 +242,9 @@ public class JNotepadPP extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
-            JTextArea editor = model.getCurrentDocument().getTextComponent();
-
-
-
-            Document doc = editor.getDocument();
-            int len = Math.abs(editor.getCaret().getDot()-editor.getCaret().getMark());
-            if(len==0) return;
-            int offset = Math.min(editor.getCaret().getDot(),editor.getCaret().getMark());
-            try {
-                doc.remove(offset, len);
-            } catch (BadLocationException e1) {
-                e1.printStackTrace();
-            }
+            simpleAction((o, l, d) -> {
+                d.remove(o, l);
+            });
         }
     };
 
@@ -254,6 +285,38 @@ public class JNotepadPP extends JFrame {
                 }
             }
             return new String(znakovi);
+        }
+    };
+
+    private final Action statsAction = new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int charCount = 0;
+            int nonBlankCount = 0;
+            int lineCount = 0;
+
+            Document doc = model.getCurrentDocument().getTextComponent().getDocument();
+
+            charCount = doc.getLength();
+
+            try{
+                String content = doc.getText(0, charCount);
+                for(char c: content.toCharArray()) {
+                    if(!Character.isWhitespace(c)) nonBlankCount++;
+                }
+
+                lineCount = content.split("\n").length;
+            } catch (BadLocationException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            JOptionPane.showMessageDialog(
+                    JNotepadPP.this,
+                    String.format("Your document has %d" +
+                            "characters, %d non-blank characters and %d lines.", charCount, nonBlankCount, lineCount),
+                    (String)this.getValue("NAME"),
+                    JOptionPane.INFORMATION_MESSAGE);
+
         }
     };
 
@@ -333,6 +396,26 @@ public class JNotepadPP extends JFrame {
                 Action.SHORT_DESCRIPTION,
                 "Used to delete the selected part of text.");
 
+        // Cut action
+        cutSelectedPartAction.putValue(Action.NAME, "Cut");
+        cutSelectedPartAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control X"));
+        cutSelectedPartAction.putValue(Action.SHORT_DESCRIPTION, "Cut selected text to clipboard");
+
+        // Copy action
+        copySelectedPartAction.putValue(Action.NAME, "Copy");
+        copySelectedPartAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
+        copySelectedPartAction.putValue(Action.SHORT_DESCRIPTION, "Copy selected text to clipboard");
+
+        // Paste action
+        pasteClipboardAction.putValue(Action.NAME, "Paste");
+        pasteClipboardAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control V"));
+        pasteClipboardAction.putValue(Action.SHORT_DESCRIPTION, "Paste text from clipboard");
+
+        statsAction.putValue(Action.NAME, "Stats");
+        statsAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control T"));
+        statsAction.putValue(Action.SHORT_DESCRIPTION, "Information about document.");
+
+
         toggleCaseAction.putValue(
                 Action.NAME,
                 "Toggle case");
@@ -391,12 +474,16 @@ public class JNotepadPP extends JFrame {
         fileMenu.addSeparator();
         fileMenu.add(new JMenuItem(closeDocumentAction));
         fileMenu.add(new JMenuItem(exitAction));
+        fileMenu.add(new JMenuItem(statsAction));
 
         JMenu editMenu = new JMenu("Edit");
         menuBar.add(editMenu);
 
         editMenu.add(new JMenuItem(deleteSelectedPartAction));
         editMenu.add(new JMenuItem(toggleCaseAction));
+        editMenu.add(new JMenuItem(copySelectedPartAction));
+        editMenu.add(new JMenuItem(cutSelectedPartAction));
+        editMenu.add(new JMenuItem(pasteClipboardAction));
 
         this.setJMenuBar(menuBar);
     }
@@ -429,6 +516,10 @@ public class JNotepadPP extends JFrame {
         toolBar.addSeparator();
         toolBar.add(new JButton(deleteSelectedPartAction));
         toolBar.add(new JButton(toggleCaseAction));
+        toolBar.add(new JButton(copySelectedPartAction));
+        toolBar.add(new JButton(cutSelectedPartAction));
+        toolBar.add(new JButton(pasteClipboardAction));
+        toolBar.add(new JButton(statsAction));
 
         this.getContentPane().add(toolBar, BorderLayout.PAGE_START);
     }
@@ -468,4 +559,23 @@ public class JNotepadPP extends JFrame {
             }
         });
     }
+
+    private void simpleAction(SimpleDocumentAction action){
+        JTextArea editor = model.getCurrentDocument().getTextComponent();
+        Document doc = editor.getDocument();
+        int len = Math.abs(editor.getCaret().getDot()-editor.getCaret().getMark());
+        //if(len==0) return;
+        int offset = Math.min(editor.getCaret().getDot(),editor.getCaret().getMark());
+        try {
+            action.performAction(offset, len, doc);
+        } catch (BadLocationException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    interface SimpleDocumentAction {
+        void performAction(int offset, int len, Document doc) throws BadLocationException;
+    }
+
+
 }
