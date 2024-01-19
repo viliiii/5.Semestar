@@ -7,9 +7,6 @@ import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentModel;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentListener;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentModel;
 
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -18,18 +15,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.Serial;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JNotepadPP extends JFrame {
     @Serial
     private static final long serialVersionUID = 1L;
 
 
-    private MultipleDocumentModel model;
-    private List<SingleDocumentListener> singleDocumentListeners;
+    private final MultipleDocumentModel model;
+    private final List<SingleDocumentListener> singleDocumentListeners;
 
     public JNotepadPP() {
 
@@ -55,7 +52,7 @@ public class JNotepadPP extends JFrame {
 
     }
 
-    private Action openNewDocumentAction = new AbstractAction() {
+    private final Action openNewDocumentAction = new AbstractAction() {
         @Serial
         private static final long serialVersionUID = 1L;
         @Override
@@ -64,7 +61,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private Action openDocumentAction = new AbstractAction() {
+    private final Action openDocumentAction = new AbstractAction() {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -92,7 +89,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private Action saveDocumentAction = new AbstractAction() {
+    private final Action saveDocumentAction = new AbstractAction() {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -135,7 +132,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private Action saveAsDocumentAction = new AbstractAction() {
+    private final Action saveAsDocumentAction = new AbstractAction() {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -185,7 +182,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private Action closeDocumentAction = new AbstractAction() {
+    private final Action closeDocumentAction = new AbstractAction() {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -196,7 +193,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private Action deleteSelectedPartAction = new AbstractAction() {
+    private final Action deleteSelectedPartAction = new AbstractAction() {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -220,7 +217,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private Action toggleCaseAction = new AbstractAction() {
+    private final Action toggleCaseAction = new AbstractAction() {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -260,7 +257,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private Action exitAction = new AbstractAction() {
+    private final Action exitAction = new AbstractAction() {
 
         @Serial
         private static final long serialVersionUID = 1L;
