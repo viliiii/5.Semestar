@@ -10,34 +10,49 @@ import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentModel;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class JNotepadPP extends JFrame {
     @Serial
     private static final long serialVersionUID = 1L;
-
     private StringBuilder clipBoard;
     private final MultipleDocumentModel model;
     private final List<SingleDocumentListener> singleDocumentListeners;
+    private JPanel statusBar;
 
 
     public JNotepadPP() {
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            /**
+             * Invoked when a window is in the process of being closed.
+             * The close operation can be overridden at this point.
+             *
+             * @param e
+             */
+            @Override
+            public void windowClosing(WindowEvent e) {
+                exitAction.actionPerformed(null);
+            }
+        });
         setLocation(0, 0);
         setSize(800, 600);
+        setTitle("(unnamed)" + " - JNotepad++");
         model = new DefaultMultipleDocumentModel();
+        model.getCurrentDocument().getTextComponent().addCaretListener(ee->updateStatusBar());
         singleDocumentListeners = new ArrayList<>();
         clipBoard = new StringBuilder();
         initGUI();
@@ -52,6 +67,7 @@ public class JNotepadPP extends JFrame {
         createActions();
         createMenus();
         createToolbars();
+        createStatusBar();
         initMultipleModelListeners();
 
     }
@@ -62,6 +78,7 @@ public class JNotepadPP extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             model.createNewDocument();
+            model.getCurrentDocument().getTextComponent().addCaretListener(ee->updateStatusBar());
         }
     };
 
@@ -82,6 +99,7 @@ public class JNotepadPP extends JFrame {
 
             try {
                 model.loadDocument(filePath);
+                model.getCurrentDocument().getTextComponent().addCaretListener(ee->updateStatusBar());
             }catch (DocumentModelException dme){
                 JOptionPane.showMessageDialog(
                         JNotepadPP.this,
@@ -328,8 +346,9 @@ public class JNotepadPP extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            model.forEach( sdm -> { //NE MOZE FOREACH JER SE DESI CONCURRENTMODIFICATIONERROR
-                if(sdm.isModified()){
+            int rep = model.getNumberOfDocuments();
+            for(int i = 0; i <rep; i++) {
+                if(model.getDocument(model.getIndexOfDocument(model.getCurrentDocument())).isModified()){
                     int result = JOptionPane.showOptionDialog(
                             JNotepadPP.this,
                             "Do you want to save changes?",
@@ -354,9 +373,9 @@ public class JNotepadPP extends JFrame {
                 }else{
                     closeDocumentAction.actionPerformed(null);
                 }
-            });
+            }
 
-            //System.exit(0);
+            System.exit(0);
         }
     };
 
@@ -473,6 +492,69 @@ public class JNotepadPP extends JFrame {
                 "Exit application.");
     }
 
+    private void updateStatusBar() {
+        JTextArea editor = model.getCurrentDocument().getTextComponent();
+        Document doc = editor.getDocument();
+
+        int length = doc.getLength();
+        int ln = 1;
+        int col = 1;
+        int sel = Math.abs(editor.getCaret().getDot() - editor.getCaret().getMark());
+
+        int caretPos = editor.getCaretPosition();
+
+            Element root = doc.getDefaultRootElement();
+
+            ln = root.getElementIndex(caretPos);
+            col = caretPos - root.getElement(ln).getStartOffset();
+
+            JLabel leftLabel = (JLabel) statusBar.getComponent(0);
+            JLabel rightLabel = (JLabel) statusBar.getComponent(1);
+
+            leftLabel.setText("length: " + length);
+            rightLabel.setText(String.format("Ln: %d  Col: %d  Sel: %d", ln+1, col+1, sel));
+
+
+
+    }
+    private void createStatusBar(){
+        statusBar = new JPanel(new GridLayout(1, 3));
+        getContentPane().add(statusBar, BorderLayout.SOUTH);
+
+        JLabel leftLabel = new JLabel("length: 0");
+        leftLabel.setBorder(BorderFactory.createMatteBorder(0, 2, 0, 0, Color.GRAY));
+        leftLabel.setHorizontalAlignment(SwingConstants.LEFT);
+
+        JLabel rightLabel = new JLabel("Ln:1  Col:1  Sel:0");
+        rightLabel.setBorder(BorderFactory.createMatteBorder(0, 2, 0, 0, Color.GRAY));
+        rightLabel.setHorizontalAlignment(SwingConstants.LEFT);
+
+        JLabel clockLabel = new JLabel("");
+
+        clockLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        Thread clockThread = new Thread(() -> {
+            while (true) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                String formattedDate = dateFormat.format(new Date());
+                SwingUtilities.invokeLater(() -> clockLabel.setText(formattedDate));
+
+                try {
+                    // Pauziranje niti svake sekunde
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        clockThread.setDaemon(true); // Postavljamo nit kao daemon kako bi se zaustavila zajedno s glavnom niti
+        clockThread.start();
+
+
+        statusBar.add(leftLabel);
+        statusBar.add(rightLabel);
+        statusBar.add(clockLabel);
+    }
+
     private void createMenus() {
         JMenuBar menuBar = new JMenuBar();
 
@@ -562,6 +644,7 @@ public class JNotepadPP extends JFrame {
                     currentModel.addSingleDocumentListener(l);
                 }
                 currentModel.setModified(currentModel.isModified());
+                setTitle(currentModel.getFilePath() == null ? "(unnamed) - JNotepad++" : currentModel.getFilePath().toString() + " - JNotepad++");
             }
 
             @Override

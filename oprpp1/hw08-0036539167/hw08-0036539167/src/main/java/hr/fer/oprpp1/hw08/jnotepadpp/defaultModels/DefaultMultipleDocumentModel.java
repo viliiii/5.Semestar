@@ -71,6 +71,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
         setSelectedIndex(documentList.indexOf(newDoc));
         notifyListenersCurrentDocumentChanged(current, newDoc);
         current = newDoc;
+        current.getTextComponent().requestFocusInWindow();
         setTitleAt(documentList.indexOf(current), "unnamed");
         setToolTipTextAt(documentList.indexOf(current), "unnamed");
         notifyListenersDocumentAdded();
@@ -106,6 +107,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
             setSelectedIndex(documentList.indexOf(newDoc));
             notifyListenersCurrentDocumentChanged(current, newDoc);
             current = newDoc;
+            current.getTextComponent().requestFocusInWindow();
             setTitleAt(documentList.indexOf(current), current.getFilePath().getFileName().toString());
             setToolTipTextAt(documentList.indexOf(current), current.getFilePath().toString());
             notifyListenersDocumentAdded();
@@ -140,6 +142,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
 
     @Override
     public void closeDocument(SingleDocumentModel model) {
+        if(getNumberOfDocuments() == 1) System.exit(0);
         setSelectedIndex(this.getIndexOfDocument(model)-1);
         current = documentList.get(this.getIndexOfDocument(model)-1);
         documentList.remove(model);
