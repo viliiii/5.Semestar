@@ -34,7 +34,7 @@ public class JNotepadPP extends JFrame {
 
     public JNotepadPP() {
 
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setLocation(0, 0);
         setSize(800, 600);
         model = new DefaultMultipleDocumentModel();
@@ -327,7 +327,36 @@ public class JNotepadPP extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.exit(0);
+
+            model.forEach( sdm -> { //NE MOZE FOREACH JER SE DESI CONCURRENTMODIFICATIONERROR
+                if(sdm.isModified()){
+                    int result = JOptionPane.showOptionDialog(
+                            JNotepadPP.this,
+                            "Do you want to save changes?",
+                            "Unsaved Changes",
+                            JOptionPane.YES_NO_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            new Object[]{"Save", "Don't Save", "Cancel"},
+                            "Save"  // Defaultna opcija
+                    );
+
+                    if(result == JOptionPane.YES_OPTION){
+                        saveDocumentAction.actionPerformed(null);
+                        closeDocumentAction.actionPerformed(null);
+                    }else if(result == JOptionPane.NO_OPTION){
+                        closeDocumentAction.actionPerformed(null);
+                    }else if(result == JOptionPane.CANCEL_OPTION){
+                        return; //kako zaustaviti forEach?
+                    }
+
+
+                }else{
+                    closeDocumentAction.actionPerformed(null);
+                }
+            });
+
+            //System.exit(0);
         }
     };
 

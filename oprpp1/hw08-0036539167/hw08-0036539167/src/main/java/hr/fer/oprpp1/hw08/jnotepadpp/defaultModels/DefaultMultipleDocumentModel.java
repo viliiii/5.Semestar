@@ -140,10 +140,8 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
 
     @Override
     public void closeDocument(SingleDocumentModel model) {
-        if(current == model){
-            current = documentList.getLast();
-            setSelectedIndex(documentList.indexOf(current));
-        }
+        setSelectedIndex(this.getIndexOfDocument(model)-1);
+        current = documentList.get(this.getIndexOfDocument(model)-1);
         documentList.remove(model);
         this.remove(model.getTextComponent());
         notifyListenersDocumentRemoved(model);
