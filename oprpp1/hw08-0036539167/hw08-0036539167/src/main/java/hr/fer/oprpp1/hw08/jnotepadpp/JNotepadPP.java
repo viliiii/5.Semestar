@@ -2,6 +2,9 @@ package hr.fer.oprpp1.hw08.jnotepadpp;
 
 import hr.fer.oprpp1.hw08.jnotepadpp.defaultModels.DefaultMultipleDocumentModel;
 import hr.fer.oprpp1.hw08.jnotepadpp.exceptions.DocumentModelException;
+import hr.fer.oprpp1.hw08.jnotepadpp.local.FormLocalizationProvider;
+import hr.fer.oprpp1.hw08.jnotepadpp.local.LJMenu;
+import hr.fer.oprpp1.hw08.jnotepadpp.local.LocalizableAction;
 import hr.fer.oprpp1.hw08.jnotepadpp.local.LocalizationProvider;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentListener;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentModel;
@@ -31,8 +34,7 @@ public class JNotepadPP extends JFrame {
     private final MultipleDocumentModel model;
     private final List<SingleDocumentListener> singleDocumentListeners;
     private JPanel statusBar;
-    private Locale locale;
-    private ResourceBundle bundle;
+    private final FormLocalizationProvider flp = new FormLocalizationProvider(LocalizationProvider.getInstance(), this);
 
 
     public JNotepadPP() {
@@ -57,8 +59,9 @@ public class JNotepadPP extends JFrame {
         singleDocumentListeners = new ArrayList<>();
         clipBoard = new StringBuilder();
 
-        LocalizationProvider.getInstance().addLocalizationListener(this::createActions);
-
+        //LocalizationProvider.getInstance().addLocalizationListener(this::createActions);
+        //flp.addLocalizationListener(this::createActions);
+        
         initGUI();
     }
 
@@ -77,9 +80,7 @@ public class JNotepadPP extends JFrame {
 
     }
 
-    private final Action openNewDocumentAction = new AbstractAction() {
-        @Serial
-        private static final long serialVersionUID = 1L;
+    private final LocalizableAction openNewDocumentAction = new LocalizableAction("new", flp) {
         @Override
         public void actionPerformed(ActionEvent e) {
             model.createNewDocument();
@@ -87,7 +88,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private final Action openDocumentAction = new AbstractAction() {
+    private final LocalizableAction openDocumentAction = new LocalizableAction("open", flp) {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -116,7 +117,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private final Action saveDocumentAction = new AbstractAction() {
+    private final LocalizableAction saveDocumentAction = new LocalizableAction("save", flp) {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -159,7 +160,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private final Action saveAsDocumentAction = new AbstractAction() {
+    private final LocalizableAction saveAsDocumentAction = new LocalizableAction("saveAs", flp) {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -209,7 +210,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private final Action closeDocumentAction = new AbstractAction() {
+    private final LocalizableAction closeDocumentAction = new LocalizableAction("close", flp) {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -220,7 +221,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private final Action cutSelectedPartAction = new AbstractAction() {
+    private final LocalizableAction cutSelectedPartAction = new LocalizableAction("cut", flp) {
         @Serial
         private static final long serialVersionUID = 1L;
         @Override
@@ -233,7 +234,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private final Action copySelectedPartAction = new AbstractAction() {
+    private final LocalizableAction copySelectedPartAction = new LocalizableAction("copy", flp) {
         @Serial
         private static final long serialVersionUID = 1L;
         @Override
@@ -245,7 +246,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private final Action pasteClipboardAction = new AbstractAction() {
+    private final LocalizableAction pasteClipboardAction = new LocalizableAction("paste", flp) {
         @Serial
         private static final long serialVersionUID = 1L;
         @Override
@@ -258,7 +259,7 @@ public class JNotepadPP extends JFrame {
     };
 
 
-    private final Action deleteSelectedPartAction = new AbstractAction() {
+    private final LocalizableAction deleteSelectedPartAction = new LocalizableAction("deleteSelectedText", flp) {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -271,7 +272,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private final Action toggleCaseAction = new AbstractAction() {
+    private final LocalizableAction toggleCaseAction = new LocalizableAction("toggleCase", flp) {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -311,7 +312,7 @@ public class JNotepadPP extends JFrame {
         }
     };
 
-    private final Action statsAction = new AbstractAction() {
+    private final LocalizableAction statsAction = new LocalizableAction("stats", flp) {
         @Override
         public void actionPerformed(ActionEvent e) {
             int charCount = 0;
@@ -335,15 +336,14 @@ public class JNotepadPP extends JFrame {
 
             JOptionPane.showMessageDialog(
                     JNotepadPP.this,
-                    String.format("Your document has %d" +
-                            "characters, %d non-blank characters and %d lines.", charCount, nonBlankCount, lineCount),
+                    String.format(flp.getString("statsStats"), charCount, nonBlankCount, lineCount),
                     (String)this.getValue("NAME"),
                     JOptionPane.INFORMATION_MESSAGE);
 
         }
     };
 
-    private final Action exitAction = new AbstractAction() {
+    private final LocalizableAction exitAction = new LocalizableAction("exit", flp) {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -387,7 +387,7 @@ public class JNotepadPP extends JFrame {
     private void createActions() {
         openDocumentAction.putValue(
                 Action.NAME,
-                LocalizationProvider.getInstance().getString("open"));
+                flp.getString("open"));
         openDocumentAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control O"));
@@ -396,17 +396,17 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_O);
         openDocumentAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                LocalizationProvider.getInstance().getString("openDes"));
+                flp.getString("openDes"));
 
-        openNewDocumentAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("new"));
+        openNewDocumentAction.putValue(Action.NAME, flp.getString("new"));
         openNewDocumentAction.putValue(Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control N"));
         openNewDocumentAction.putValue(Action.SHORT_DESCRIPTION,
-                LocalizationProvider.getInstance().getString("newDes"));
+                flp.getString("newDes"));
 
         saveAsDocumentAction.putValue(
                 Action.NAME,
-                LocalizationProvider.getInstance().getString("saveAs"));
+                flp.getString("saveAs"));
         saveAsDocumentAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
@@ -415,11 +415,11 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_S);
         saveAsDocumentAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                LocalizationProvider.getInstance().getString("saveAsDes"));
+                flp.getString("saveAsDes"));
 
         saveDocumentAction.putValue(
                 Action.NAME,
-                LocalizationProvider.getInstance().getString("save")
+                flp.getString("save")
         );
         saveDocumentAction.putValue(
                 Action.ACCELERATOR_KEY,
@@ -427,18 +427,18 @@ public class JNotepadPP extends JFrame {
         );
         saveDocumentAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                LocalizationProvider.getInstance().getString("saveDes")
+                flp.getString("saveDes")
         );
 
-        closeDocumentAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("close"));
+        closeDocumentAction.putValue(Action.NAME, flp.getString("close"));
         closeDocumentAction.putValue(Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control E"));
         closeDocumentAction.putValue(Action.SHORT_DESCRIPTION,
-                LocalizationProvider.getInstance().getString("closeDes"));
+                flp.getString("closeDes"));
 
         deleteSelectedPartAction.putValue(
                 Action.NAME,
-                LocalizationProvider.getInstance().getString("deleteSelectedText"));
+                flp.getString("deleteSelectedText"));
         deleteSelectedPartAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("F2"));
@@ -447,31 +447,31 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_D);
         deleteSelectedPartAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                LocalizationProvider.getInstance().getString("deleteSelectedTextDes"));
+                flp.getString("deleteSelectedTextDes"));
 
         // Cut action
-        cutSelectedPartAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("cut"));
+        cutSelectedPartAction.putValue(Action.NAME, flp.getString("cut"));
         cutSelectedPartAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control X"));
-        cutSelectedPartAction.putValue(Action.SHORT_DESCRIPTION, LocalizationProvider.getInstance().getString("cutDes"));
+        cutSelectedPartAction.putValue(Action.SHORT_DESCRIPTION, flp.getString("cutDes"));
 
         // Copy action
-        copySelectedPartAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("copy"));
+        copySelectedPartAction.putValue(Action.NAME, flp.getString("copy"));
         copySelectedPartAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
-        copySelectedPartAction.putValue(Action.SHORT_DESCRIPTION, LocalizationProvider.getInstance().getString("copyDes"));
+        copySelectedPartAction.putValue(Action.SHORT_DESCRIPTION, flp.getString("copyDes"));
 
         // Paste action
-        pasteClipboardAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("paste"));
+        pasteClipboardAction.putValue(Action.NAME, flp.getString("paste"));
         pasteClipboardAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control V"));
-        pasteClipboardAction.putValue(Action.SHORT_DESCRIPTION, LocalizationProvider.getInstance().getString("pasteDes"));
+        pasteClipboardAction.putValue(Action.SHORT_DESCRIPTION, flp.getString("pasteDes"));
 
-        statsAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("stats"));
+        statsAction.putValue(Action.NAME, flp.getString("stats"));
         statsAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control T"));
-        statsAction.putValue(Action.SHORT_DESCRIPTION, LocalizationProvider.getInstance().getString("statsDes"));
+        statsAction.putValue(Action.SHORT_DESCRIPTION, flp.getString("statsDes"));
 
 
         toggleCaseAction.putValue(
                 Action.NAME,
-                LocalizationProvider.getInstance().getString("toggleCase"));
+                flp.getString("toggleCase"));
         toggleCaseAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control F3"));
@@ -480,12 +480,12 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_T);
         toggleCaseAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                LocalizationProvider.getInstance().getString("toggleCaseDes"));
+                flp.getString("toggleCaseDes"));
 
 
         exitAction.putValue(
                 Action.NAME,
-                LocalizationProvider.getInstance().getString("exit"));
+                flp.getString("exit"));
         exitAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control X"));
@@ -494,7 +494,7 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_X);
         exitAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                LocalizationProvider.getInstance().getString("exitDes"));
+                flp.getString("exitDes"));
     }
 
     private void updateStatusBar() {
@@ -563,7 +563,7 @@ public class JNotepadPP extends JFrame {
     private void createMenus() {
         JMenuBar menuBar = new JMenuBar();
 
-        JMenu fileMenu = new JMenu("File");
+        LJMenu fileMenu = new LJMenu("file", flp);
         menuBar.add(fileMenu);
 
         fileMenu.add(new JMenuItem(openNewDocumentAction));
@@ -592,7 +592,7 @@ public class JNotepadPP extends JFrame {
         fileMenu.add(new JMenuItem(exitAction));
         fileMenu.add(new JMenuItem(statsAction));
 
-        JMenu editMenu = new JMenu("Edit");
+        LJMenu editMenu = new LJMenu("edit", flp);
         menuBar.add(editMenu);
 
         editMenu.add(new JMenuItem(deleteSelectedPartAction));
@@ -601,12 +601,18 @@ public class JNotepadPP extends JFrame {
         editMenu.add(new JMenuItem(cutSelectedPartAction));
         editMenu.add(new JMenuItem(pasteClipboardAction));
 
-        JMenu languagesMenu = new JMenu("Languages");
-        languagesMenu.add(new JMenuItem("English"));
+        LJMenu languagesMenu = new LJMenu("languages", flp);
+        JMenuItem en = new JMenuItem("English");
+        en.addActionListener((e) -> LocalizationProvider.getInstance().setLanguage("en"));
+        languagesMenu.add(en);
+
         JMenuItem hr = new JMenuItem("Hrvatski");
         hr.addActionListener((e) -> LocalizationProvider.getInstance().setLanguage("hr"));
         languagesMenu.add(hr);
-        languagesMenu.add(new JMenuItem("Slovenski"));
+
+        JMenuItem sl = new JMenuItem("Slovenski");
+        sl.addActionListener((e) -> LocalizationProvider.getInstance().setLanguage("sl"));
+        languagesMenu.add(sl);
         menuBar.add(languagesMenu);
 
 
