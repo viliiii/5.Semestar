@@ -2,6 +2,7 @@ package hr.fer.oprpp1.hw08.jnotepadpp;
 
 import hr.fer.oprpp1.hw08.jnotepadpp.defaultModels.DefaultMultipleDocumentModel;
 import hr.fer.oprpp1.hw08.jnotepadpp.exceptions.DocumentModelException;
+import hr.fer.oprpp1.hw08.jnotepadpp.local.LocalizationProvider;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentListener;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentModel;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentListener;
@@ -19,8 +20,7 @@ import java.io.InputStream;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -31,6 +31,8 @@ public class JNotepadPP extends JFrame {
     private final MultipleDocumentModel model;
     private final List<SingleDocumentListener> singleDocumentListeners;
     private JPanel statusBar;
+    private Locale locale;
+    private ResourceBundle bundle;
 
 
     public JNotepadPP() {
@@ -41,7 +43,6 @@ public class JNotepadPP extends JFrame {
              * Invoked when a window is in the process of being closed.
              * The close operation can be overridden at this point.
              *
-             * @param e
              */
             @Override
             public void windowClosing(WindowEvent e) {
@@ -55,6 +56,9 @@ public class JNotepadPP extends JFrame {
         model.getCurrentDocument().getTextComponent().addCaretListener(ee->updateStatusBar());
         singleDocumentListeners = new ArrayList<>();
         clipBoard = new StringBuilder();
+
+        LocalizationProvider.getInstance().addLocalizationListener(this::createActions);
+
         initGUI();
     }
 
@@ -63,6 +67,7 @@ public class JNotepadPP extends JFrame {
         this.getContentPane().setLayout(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(model.getVisualComponent());
         this.getContentPane().add(scrollPane, BorderLayout.CENTER);
+
 
         createActions();
         createMenus();
@@ -366,7 +371,7 @@ public class JNotepadPP extends JFrame {
                     }else if(result == JOptionPane.NO_OPTION){
                         closeDocumentAction.actionPerformed(null);
                     }else if(result == JOptionPane.CANCEL_OPTION){
-                        return; //kako zaustaviti forEach?
+                        return;
                     }
 
 
@@ -382,7 +387,7 @@ public class JNotepadPP extends JFrame {
     private void createActions() {
         openDocumentAction.putValue(
                 Action.NAME,
-                "Open");
+                LocalizationProvider.getInstance().getString("open"));
         openDocumentAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control O"));
@@ -391,17 +396,17 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_O);
         openDocumentAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                "Used to open existing file from disk.");
+                LocalizationProvider.getInstance().getString("openDes"));
 
-        openNewDocumentAction.putValue(Action.NAME, "New");
+        openNewDocumentAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("new"));
         openNewDocumentAction.putValue(Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control N"));
         openNewDocumentAction.putValue(Action.SHORT_DESCRIPTION,
-                "Creates new blank document.");
+                LocalizationProvider.getInstance().getString("newDes"));
 
         saveAsDocumentAction.putValue(
                 Action.NAME,
-                "SaveAs");
+                LocalizationProvider.getInstance().getString("saveAs"));
         saveAsDocumentAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
@@ -410,11 +415,11 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_S);
         saveAsDocumentAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                "Used to save current file to disk with specified new name.");
+                LocalizationProvider.getInstance().getString("saveAsDes"));
 
         saveDocumentAction.putValue(
                 Action.NAME,
-                "Save"
+                LocalizationProvider.getInstance().getString("save")
         );
         saveDocumentAction.putValue(
                 Action.ACCELERATOR_KEY,
@@ -422,18 +427,18 @@ public class JNotepadPP extends JFrame {
         );
         saveDocumentAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                "Used to save current file to disk."
+                LocalizationProvider.getInstance().getString("saveDes")
         );
 
-        closeDocumentAction.putValue(Action.NAME, "Close");
+        closeDocumentAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("close"));
         closeDocumentAction.putValue(Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control E"));
         closeDocumentAction.putValue(Action.SHORT_DESCRIPTION,
-                "Closes the current document.");
+                LocalizationProvider.getInstance().getString("closeDes"));
 
         deleteSelectedPartAction.putValue(
                 Action.NAME,
-                "Delete selected text");
+                LocalizationProvider.getInstance().getString("deleteSelectedText"));
         deleteSelectedPartAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("F2"));
@@ -442,31 +447,31 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_D);
         deleteSelectedPartAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                "Used to delete the selected part of text.");
+                LocalizationProvider.getInstance().getString("deleteSelectedTextDes"));
 
         // Cut action
-        cutSelectedPartAction.putValue(Action.NAME, "Cut");
+        cutSelectedPartAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("cut"));
         cutSelectedPartAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control X"));
-        cutSelectedPartAction.putValue(Action.SHORT_DESCRIPTION, "Cut selected text to clipboard");
+        cutSelectedPartAction.putValue(Action.SHORT_DESCRIPTION, LocalizationProvider.getInstance().getString("cutDes"));
 
         // Copy action
-        copySelectedPartAction.putValue(Action.NAME, "Copy");
+        copySelectedPartAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("copy"));
         copySelectedPartAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control C"));
-        copySelectedPartAction.putValue(Action.SHORT_DESCRIPTION, "Copy selected text to clipboard");
+        copySelectedPartAction.putValue(Action.SHORT_DESCRIPTION, LocalizationProvider.getInstance().getString("copyDes"));
 
         // Paste action
-        pasteClipboardAction.putValue(Action.NAME, "Paste");
+        pasteClipboardAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("paste"));
         pasteClipboardAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control V"));
-        pasteClipboardAction.putValue(Action.SHORT_DESCRIPTION, "Paste text from clipboard");
+        pasteClipboardAction.putValue(Action.SHORT_DESCRIPTION, LocalizationProvider.getInstance().getString("pasteDes"));
 
-        statsAction.putValue(Action.NAME, "Stats");
+        statsAction.putValue(Action.NAME, LocalizationProvider.getInstance().getString("stats"));
         statsAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control T"));
-        statsAction.putValue(Action.SHORT_DESCRIPTION, "Information about document.");
+        statsAction.putValue(Action.SHORT_DESCRIPTION, LocalizationProvider.getInstance().getString("statsDes"));
 
 
         toggleCaseAction.putValue(
                 Action.NAME,
-                "Toggle case");
+                LocalizationProvider.getInstance().getString("toggleCase"));
         toggleCaseAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control F3"));
@@ -475,12 +480,12 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_T);
         toggleCaseAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                "Used to toggle character case in selected part of text or in entire document.");
+                LocalizationProvider.getInstance().getString("toggleCaseDes"));
 
 
         exitAction.putValue(
                 Action.NAME,
-                "Exit");
+                LocalizationProvider.getInstance().getString("exit"));
         exitAction.putValue(
                 Action.ACCELERATOR_KEY,
                 KeyStroke.getKeyStroke("control X"));
@@ -489,7 +494,7 @@ public class JNotepadPP extends JFrame {
                 KeyEvent.VK_X);
         exitAction.putValue(
                 Action.SHORT_DESCRIPTION,
-                "Exit application.");
+                LocalizationProvider.getInstance().getString("exitDes"));
     }
 
     private void updateStatusBar() {
@@ -595,6 +600,15 @@ public class JNotepadPP extends JFrame {
         editMenu.add(new JMenuItem(copySelectedPartAction));
         editMenu.add(new JMenuItem(cutSelectedPartAction));
         editMenu.add(new JMenuItem(pasteClipboardAction));
+
+        JMenu languagesMenu = new JMenu("Languages");
+        languagesMenu.add(new JMenuItem("English"));
+        JMenuItem hr = new JMenuItem("Hrvatski");
+        hr.addActionListener((e) -> LocalizationProvider.getInstance().setLanguage("hr"));
+        languagesMenu.add(hr);
+        languagesMenu.add(new JMenuItem("Slovenski"));
+        menuBar.add(languagesMenu);
+
 
         this.setJMenuBar(menuBar);
     }
