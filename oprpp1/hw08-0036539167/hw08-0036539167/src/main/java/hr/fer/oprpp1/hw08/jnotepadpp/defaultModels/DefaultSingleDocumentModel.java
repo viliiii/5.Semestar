@@ -17,6 +17,7 @@ public class DefaultSingleDocumentModel implements SingleDocumentModel {
     private JTextArea textComponent;
 
     private boolean modified;
+    private String originalContent;
 
     private List<SingleDocumentListener> listeners;
 
@@ -24,16 +25,19 @@ public class DefaultSingleDocumentModel implements SingleDocumentModel {
         textComponent = new JTextArea(content);
         modified = false;
         listeners = new ArrayList<>();
-
+        this.filePath = filePath;
+        originalContent = content;
         textComponent.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                setModified(true);
+                //setModified(true);
+                setModified(!textComponent.getText().equals(originalContent));
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                setModified(true);
+                //setModified(textComponent.getDocument().getLength() != 0);
+                setModified(!textComponent.getText().equals(originalContent));
             }
 
             @Override
@@ -41,6 +45,7 @@ public class DefaultSingleDocumentModel implements SingleDocumentModel {
 
             }
         });
+
 
     }
 
@@ -71,8 +76,8 @@ public class DefaultSingleDocumentModel implements SingleDocumentModel {
     public void setModified(boolean modified) {
         if(modified != this.modified) {
             this.modified = modified;
-            notifyListenersDocumentModifyStatusUpdated();
         }
+        notifyListenersDocumentModifyStatusUpdated();
     }
 
     @Override
