@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
+import javax.xml.crypto.KeySelectorResult;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
 import java.nio.file.Path;
+import java.text.Collator;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
@@ -313,6 +315,170 @@ public class JNotepadPP extends JFrame {
         }
     };
 
+    private final LocalizableAction upperCaseAction = new LocalizableAction("upperCase", flp) {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JTextArea editor = model.getCurrentDocument().getTextComponent();
+            Document doc = editor.getDocument();
+            int len = Math.abs(editor.getCaret().getDot()-editor.getCaret().getMark());
+            int offset = 0;
+            if(len!=0) {
+                offset = Math.min(editor.getCaret().getDot(),editor.getCaret().getMark());
+            } else {
+                len = doc.getLength();
+            }
+            try {
+                String text = doc.getText(offset, len);
+                text = changeCase(text);
+                doc.remove(offset, len);
+                doc.insertString(offset, text, null);
+            } catch(BadLocationException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        private String changeCase(String text) {
+            char[] znakovi = text.toCharArray();
+            for(int i = 0; i < znakovi.length; i++) {
+                char c = znakovi[i];
+                if(Character.isLowerCase(c)) {
+                    znakovi[i] = Character.toUpperCase(c);
+                }
+            }
+            return new String(znakovi);
+        }
+    };
+
+    private final LocalizableAction lowerCaseAction = new LocalizableAction("lowerCase", flp) {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JTextArea editor = model.getCurrentDocument().getTextComponent();
+            Document doc = editor.getDocument();
+            int len = Math.abs(editor.getCaret().getDot()-editor.getCaret().getMark());
+            int offset = 0;
+            if(len!=0) {
+                offset = Math.min(editor.getCaret().getDot(),editor.getCaret().getMark());
+            } else {
+                len = doc.getLength();
+            }
+            try {
+                String text = doc.getText(offset, len);
+                text = changeCase(text);
+                doc.remove(offset, len);
+                doc.insertString(offset, text, null);
+            } catch(BadLocationException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        private String changeCase(String text) {
+            char[] znakovi = text.toCharArray();
+            for(int i = 0; i < znakovi.length; i++) {
+                char c = znakovi[i];
+                if(Character.isUpperCase(c)) {
+                    znakovi[i] = Character.toLowerCase(c);
+                }
+            }
+            return new String(znakovi);
+        }
+    };
+
+    private final LocalizableAction ascendingSortAction = new LocalizableAction("ascendingSort", flp) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Locale lan_locale = new Locale(flp.getLanguage());
+            Collator lan_collator = Collator.getInstance(lan_locale);
+
+            JTextArea editor = model.getCurrentDocument().getTextComponent();
+            Document doc = editor.getDocument();
+
+            int startOffset = editor.getSelectionStart();
+            int endOffset = editor.getSelectionEnd();
+            if(Math.abs(startOffset - endOffset) == 0) return;
+
+            try {
+                int startLine = editor.getLineStartOffset(editor.getLineOfOffset(startOffset));
+                int endLine = editor.getLineEndOffset(editor.getLineOfOffset(endOffset));
+
+                String selectedText = doc.getText(startLine, endLine-startLine);
+                String[] selectedSplit = selectedText.split("\n");
+                Arrays.sort(selectedSplit, lan_collator);
+                doc.remove(startLine, endLine - startLine);
+                doc.insertString(startLine, String.join("\n", selectedSplit), null);
+
+            } catch (BadLocationException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        }
+    };
+
+    private final LocalizableAction descendingSortAction = new LocalizableAction("descendingSort", flp) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Locale lan_locale = new Locale(flp.getLanguage());
+            Collator lan_collator = Collator.getInstance(lan_locale);
+
+            JTextArea editor = model.getCurrentDocument().getTextComponent();
+            Document doc = editor.getDocument();
+
+            int startOffset = editor.getSelectionStart();
+            int endOffset = editor.getSelectionEnd();
+            if(Math.abs(startOffset - endOffset) == 0) return;
+
+            try {
+                int startLine = editor.getLineStartOffset(editor.getLineOfOffset(startOffset));
+                int endLine = editor.getLineEndOffset(editor.getLineOfOffset(endOffset));
+
+                String selectedText = doc.getText(startLine, endLine-startLine);
+                String[] selectedSplit = selectedText.split("\n");
+                Arrays.sort(selectedSplit, Collections.reverseOrder(lan_collator));
+                doc.remove(startLine, endLine - startLine);
+                doc.insertString(startLine, String.join("\n", selectedSplit), null);
+
+            } catch (BadLocationException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        }
+    };
+
+    private final LocalizableAction uniqueAction = new LocalizableAction("unique", flp) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            JTextArea editor = model.getCurrentDocument().getTextComponent();
+            Document doc = editor.getDocument();
+
+            int startOffset = editor.getSelectionStart();
+            int endOffset = editor.getSelectionEnd();
+            if(Math.abs(startOffset - endOffset) == 0) return;
+
+            try {
+                int startLine = editor.getLineStartOffset(editor.getLineOfOffset(startOffset));
+                int endLine = editor.getLineEndOffset(editor.getLineOfOffset(endOffset));
+
+                String selectedText = doc.getText(startLine, endLine-startLine);
+                String[] selectedSplit = selectedText.split("\n");
+                Set<String> unique = new LinkedHashSet<>(Arrays.asList(selectedSplit));
+                doc.remove(startLine, endLine - startLine);
+                doc.insertString(startLine, String.join("\n", unique), null);
+
+            } catch (BadLocationException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        }
+    };
+
     private final LocalizableAction statsAction = new LocalizableAction("stats", flp) {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -483,6 +649,27 @@ public class JNotepadPP extends JFrame {
                 Action.SHORT_DESCRIPTION,
                 flp.getString("toggleCaseDes"));
 
+        upperCaseAction.putValue(Action.NAME, "upperCase");
+        upperCaseAction.putValue(Action.ACCELERATOR_KEY,
+                KeyStroke.getKeyStroke("control U"));
+        upperCaseAction.putValue(Action.SHORT_DESCRIPTION, flp.getString("upperCaseDes"));
+
+        lowerCaseAction.putValue(Action.NAME, "lowerCase");
+        lowerCaseAction.putValue(Action.ACCELERATOR_KEY,
+                KeyStroke.getKeyStroke("control L"));
+        lowerCaseAction.putValue(Action.SHORT_DESCRIPTION, flp.getString("lowerCaseDes"));
+
+        ascendingSortAction.putValue(Action.NAME, flp.getString("ascendingSort"));
+        ascendingSortAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control A"));
+        ascendingSortAction.putValue(Action.SHORT_DESCRIPTION, flp.getString("ascendingSortDes"));
+
+        descendingSortAction.putValue(Action.NAME, flp.getString("descendingSort"));
+        descendingSortAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control D"));
+        descendingSortAction.putValue(Action.SHORT_DESCRIPTION, flp.getString("descendingSortDes"));
+
+        uniqueAction.putValue(Action.NAME, flp.getString("unique"));
+        uniqueAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 8"));
+        uniqueAction.putValue(Action.SHORT_DESCRIPTION, flp.getString("uniqueDes"));
 
         exitAction.putValue(
                 Action.NAME,
@@ -517,7 +704,7 @@ public class JNotepadPP extends JFrame {
             JLabel leftLabel = (JLabel) statusBar.getComponent(0);
             JLabel rightLabel = (JLabel) statusBar.getComponent(1);
 
-            leftLabel.setText("length: " + length);
+            leftLabel.setText(flp.getString("length") + length);
             rightLabel.setText(String.format("Ln: %d  Col: %d  Sel: %d", ln+1, col+1, sel));
 
 
@@ -527,7 +714,7 @@ public class JNotepadPP extends JFrame {
         statusBar = new JPanel(new GridLayout(1, 3));
         getContentPane().add(statusBar, BorderLayout.SOUTH);
 
-        JLabel leftLabel = new JLabel("length: 0");
+        JLabel leftLabel = new JLabel(flp.getString("length") + " 0");
         leftLabel.setBorder(BorderFactory.createMatteBorder(0, 2, 0, 0, Color.GRAY));
         leftLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
@@ -610,14 +797,31 @@ public class JNotepadPP extends JFrame {
         toolsMenu.add(caseMenu);
 
         JMenuItem toggleCase = new JMenuItem(toggleCaseAction);
+        JMenuItem upperCase = new JMenuItem(upperCaseAction);
+        JMenuItem lowerCase = new JMenuItem(lowerCaseAction);
         toggleCase.setEnabled(false);
+        upperCase.setEnabled(false);
+        lowerCase.setEnabled(false);
         caseMenu.add(toggleCase);
+        caseMenu.add(upperCase);
+        caseMenu.add(lowerCase);
+
+
         model.getCurrentDocument().getTextComponent().addCaretListener((e) -> {
             updateStatusBar();
             toggleCase.setEnabled(sel > 0);
+            upperCase.setEnabled(sel > 0);
+            lowerCase.setEnabled(sel > 0);
         });
 
 
+        LJMenu sortMenu = new LJMenu("sort", flp);
+        toolsMenu.add(sortMenu);
+
+        sortMenu.add(ascendingSortAction);
+        sortMenu.add(descendingSortAction);
+
+        toolsMenu.add(uniqueAction);
 
 
 

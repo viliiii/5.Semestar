@@ -12,10 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class DefaultMultipleDocumentModel extends JTabbedPane implements MultipleDocumentModel {
@@ -175,7 +173,7 @@ public class DefaultMultipleDocumentModel extends JTabbedPane implements Multipl
         if(path == null) throw new NullPointerException("Path cannot be null.");
 
         Optional<SingleDocumentModel> found = documentList.stream()
-                .filter(dm -> dm.getFilePath().equals(path))
+                .filter(dm -> Objects.equals(dm.getFilePath(), path))
                 .findFirst();
 
         return found.orElse(null);
