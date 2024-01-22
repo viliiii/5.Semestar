@@ -36,6 +36,7 @@ public class JNotepadPP extends JFrame {
     private JPanel statusBar;
     private final FormLocalizationProvider flp = new FormLocalizationProvider(LocalizationProvider.getInstance(), this);
 
+    private int sel = 0; //length of currently selected text
 
     public JNotepadPP() {
 
@@ -504,7 +505,7 @@ public class JNotepadPP extends JFrame {
         int length = doc.getLength();
         int ln = 1;
         int col = 1;
-        int sel = Math.abs(editor.getCaret().getDot() - editor.getCaret().getMark());
+        sel = Math.abs(editor.getCaret().getDot() - editor.getCaret().getMark());
 
         int caretPos = editor.getCaretPosition();
 
@@ -600,6 +601,25 @@ public class JNotepadPP extends JFrame {
         editMenu.add(new JMenuItem(copySelectedPartAction));
         editMenu.add(new JMenuItem(cutSelectedPartAction));
         editMenu.add(new JMenuItem(pasteClipboardAction));
+
+        LJMenu toolsMenu = new LJMenu("tools", flp);
+        menuBar.add(toolsMenu);
+
+
+        LJMenu caseMenu = new LJMenu("changeCase", flp);
+        toolsMenu.add(caseMenu);
+
+        JMenuItem toggleCase = new JMenuItem(toggleCaseAction);
+        toggleCase.setEnabled(false);
+        caseMenu.add(toggleCase);
+        model.getCurrentDocument().getTextComponent().addCaretListener((e) -> {
+            updateStatusBar();
+            toggleCase.setEnabled(sel > 0);
+        });
+
+
+
+
 
         LJMenu languagesMenu = new LJMenu("languages", flp);
         JMenuItem en = new JMenuItem("English");
