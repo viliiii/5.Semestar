@@ -1,0 +1,6 @@
+-0.00001 na 0, 5 rasponu je inkrement koji daje već dosta sporu jednodretvenu verziju ili neizvedivu. 0.0001 je zadnji koji sigurmo radi, cca 4 sekunde.
+-"vrijeme" je x os jer je tako "uobičajeno"
+-rađeno s pretpostavkom da je scipy rješenje točno jer koristi sofisticiranije metode. Doduše, isto koristi numeričko rješavanje al optimalno, a nama je tema paralelizam, a ne optimiranje matematike.
+(-skaliraj vrednovanje jer je ovaj mean pre malen.)
+-opisat malo mpi4py biblioteku jer doslovno ovaj projekt je istraživanje neke tehnologije paralelizma.
+-probat da u paralell pojedina dretva dobije dio euler_method() a ne da su samo dvije po inkrementu i jedna ima euler a druga scipy metodu.
