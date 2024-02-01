@@ -1,0 +1,99 @@
+Neki zadaci sa završnog ispita 2021/2022 iz kolegija Paralelizam i konkurentnost. Ovo su samo neki zadaci,
+ali bi manje više trebali biti isti kao oni koji su se javili na ispitu. 
+
+
+1.
+//4 boda
+//napiši pseudokod za dekkerov algoritam međusobnog isključivanja dvaju procesa
+
+void p1(){
+    //init
+}
+
+void p2(){
+    //p1
+}
+
+void p3(){
+    //p2
+}
+
+
+2.
+//4 boda
+//Paraleliziraj program koji obilazi listu i svaki član liste obradi u funkciji process
+
+struct Elem{
+    int *payload;
+    struct Elem *next;
+};
+
+void traverseList(struct Elem list){
+
+    //process()
+}
+
+int main(){
+    //
+    struct Elem list;
+    traverseList(list);
+}
+
+
+3.
+//2 boda
+//Uz minimalne izmjene koda, osiguraj pravilno izvođenje paralelne regije programa
+//PS: program možda je bilo još nekih komponenti programa, ali 99% sam siguran da je ovako izgledalo
+
+int main(){
+    int A[200], B[200], C[200];
+
+    #pragma omp parallel for
+    for(int i = 0; i < 200; i++){
+        C[i] += A[i] * B[i];
+    }
+}
+
+
+4.
+//4 boda točan, -0.8 bodova netočan, 0 bodova neodgovoren
+//Što će ispisati sljedeći program? Ako je neka vrijednost nema isto ponašanje u svim slučajevima(broj dretvi)
+//onda se ispis varijable definira kao ND
+
+int main(){
+    int v1 = 5; int v2 = 10; int v3 = 15; int v4 = 20;
+    omp_set_num_threads(3);
+    #pragma omp parallel shared(v1, v2) firstprivate(v3,v4)
+    {
+        v1++; v2++; v3++; v4++;
+    } 
+    printf("v1 = %d\nv2 = %d\nv3 = %d\nv4 = %d", v1, v2, v3, v4);
+}
+
+
+5.
+//4 boda točan, -0.8 bodova netočan, 0 bodova neodgovoren
+//Što će ispisati sljedeći program? Ako neka vrijednost nema isto ponašanje u svim slučajevima(broj dretvi)
+//onda se ispis varijable definira kao ND
+//Broj dretvi je 2
+
+int main(){
+    int v1 = 10; int v2 = 20;
+    omp_set_num_threads(2);
+    #pragma omp parallel shared(v1, v2)
+    {
+        #pragma omp single firstprivate(v2)
+        {
+            v1++; v2++;
+        }
+    }
+    printf("v1=%d v2=%d", v1, v2);
+}
+
+
+6.
+4 boda
+
+Broj podataka je 80000. Procesor čita podatke i obrađuje ih te ih potom sprema. Vijeme čitanja skupa podataka je 10000ns, a
+vrijeme spremanja je  12000ns.Vrijeme obrade jednog podatka je 10ns. Faktor ubrzanja rada paralelnog dijela (a) računa se po formuli: a=0.8*N.
+Izračunaj ubrzanje cijelog procesa(čitanje, brađivanje, spremanje cijelog skupa) te efikasnost ako je a) N=2 b) N=4 c) N=8.
