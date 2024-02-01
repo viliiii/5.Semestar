@@ -11,6 +11,7 @@ import hr.fer.oprpp1.hw08.jnotepadpp.models.MultipleDocumentModel;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentListener;
 import hr.fer.oprpp1.hw08.jnotepadpp.models.SingleDocumentModel;
 import ispit.zi.zad1.ExamZad01_1;
+import ispit.zi.zad1.ExamZad01_2;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -808,12 +809,7 @@ public class JNotepadPP extends JFrame {
         caseMenu.add(lowerCase);
 
 
-        model.getCurrentDocument().getTextComponent().addCaretListener((e) -> {
-            updateStatusBar();
-            toggleCase.setEnabled(sel > 0);
-            upperCase.setEnabled(sel > 0);
-            lowerCase.setEnabled(sel > 0);
-        });
+
 
 
         LJMenu sortMenu = new LJMenu("sort", flp);
@@ -841,13 +837,39 @@ public class JNotepadPP extends JFrame {
         menuBar.add(languagesMenu);
 
         JMenu ispitMenu = new JMenu("Ispit");
-        ispitMenu.add(new JMenuItem(new AbstractAction() {
+
+        JMenuItem zad11 = new JMenuItem(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JDialog dialog = new ExamZad01_1();
                 dialog.setVisible(true);
             }
-        }));
+        });
+        zad11.setText("Zadatak 1.1");
+        ispitMenu.add(zad11);
+
+        JMenuItem zad12 = new JMenuItem(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JDialog dialog = new ExamZad01_2();
+                dialog.setVisible(true);
+            }
+        });
+        zad12.setText("Zadatak 1.2");
+        ispitMenu.add(zad12);
+
+        JMenuItem zad3 = new JMenuItem();
+        zad3.setText("Zadatak3");
+        ispitMenu.add(zad3);
+
+        model.getCurrentDocument().getTextComponent().addCaretListener((e) -> {
+            updateStatusBar();
+            toggleCase.setEnabled(sel > 0);
+            upperCase.setEnabled(sel > 0);
+            lowerCase.setEnabled(sel > 0);
+            zad3.setEnabled(sel > 0);
+        });
+
         menuBar.add(ispitMenu);
 
 

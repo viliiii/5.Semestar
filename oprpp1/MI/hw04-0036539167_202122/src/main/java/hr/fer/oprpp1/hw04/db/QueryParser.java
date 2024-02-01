@@ -81,6 +81,7 @@ public class QueryParser {
             if(token.getType() == TokenType.SHOWING){
                 requiredColumns = new LinkedList<>();
                 token = queryLexer.nextToken();
+                if(token.getType() == TokenType.EOF) throw new IllegalArgumentException("Showing without columns");
                 while (token.getType() != TokenType.EOF){
                     requiredColumns.add(token.getType());
                     token = queryLexer.nextToken();

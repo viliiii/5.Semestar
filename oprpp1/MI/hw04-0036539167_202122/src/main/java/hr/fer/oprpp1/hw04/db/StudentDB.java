@@ -45,6 +45,7 @@ public class StudentDB {
         sbFirstLast.append("+");
 
         if(parser.getRequiredColumns() == null){
+            //tu grešku treba vjv
             rows.add(sbFirstLast.toString());
         }else if(!parser.getRequiredColumns().isEmpty()){
 

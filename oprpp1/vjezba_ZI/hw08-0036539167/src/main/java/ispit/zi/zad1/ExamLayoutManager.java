@@ -74,8 +74,8 @@ public class ExamLayoutManager implements LayoutManager2 {
     private Dimension calcDimension(Container parent, SizeGetter getter){
 
         Dimension dim = new Dimension(0,0);
-
-        for(int i=0; i<3; i++){
+        int n = parent.getComponentCount();
+        for(int i=0; i<n; i++){
             Component comp = parent.getComponent(i);
             Dimension compDim = getter.getSize(comp);
 
@@ -107,15 +107,17 @@ public class ExamLayoutManager implements LayoutManager2 {
         double w_ = parent.getWidth() * ((1.0*postotak)/100.0);
         double w = parent.getWidth() - w_;
 
-        for (int i=0; i<3; i++) {
+        int n = parent.getComponentCount();
+
+        for (int i=0; i<n; i++) {
             Component comp = parent.getComponent(i);
             int position = positions.get(comp);
 
-            if(position == 1){
+            if(position == AREA1){
                 comp.setBounds(0, 0, (int)(w+w_), (int)h_);
-            }else if(position == 2){
+            }else if(position == AREA2){
                 comp.setBounds(0, (int)h_, (int)(w_), (int)(h));
-            }else if(position == 3){
+            }else if(position == AREA3){
                 comp.setBounds((int)w_, (int)h_, (int)(w), (int)(h) );
             }
         }
